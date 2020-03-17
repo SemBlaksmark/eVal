@@ -1,6 +1,9 @@
 let info = Object.fromEntries(location.search.substr(1).split('&').map(entry => entry.split('=')));
 document.title = `eVal ${info.host}`;
 
+const profileConfig = getConfig(info.account, info.profile);
+if (!profileConfig.default) alert('no default account configuration found');
+
 chrome.runtime.onMessage.addListener(m => {
   switch (m.command) {
     case 'addCall':
@@ -18,6 +21,25 @@ function windowLoaded() {
     layersEl.style.display = 'flex';
     layersEl.textContent = e.target.dataset.layers || 'no text';
   });
+}
+
+function getConfig(account, profile) {
+  let config;
+  (async () => { config = await storageFetch('config'); })();
+
+  config = config[account];
+  if (config && config.default) {
+    if (config[profile]) return config[profile].override ? config[profile] : Object.assign(config.default, config[profile]);
+    return config.default;
+  }
+  return {};
+
+  /* Helper function */
+  async function storageFetch(key) {
+    return new Promise((resolve, reject) => {
+      chrome.storage.local.get(key, stored => resolve(stored[key]));
+    });
+  }
 }
 
 function addCall(call) {

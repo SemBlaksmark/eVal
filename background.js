@@ -1,15 +1,8 @@
 let sessions = [];
-let config; (async () => { config = await storageFetch('config'); })();
 
 /* Listen for event */
 chrome.tabs.onRemoved.addListener(tabId => sessions = sessions.filter(session => session.pageTab !== tabId && session.validatorTab !== tabId));
 chrome.runtime.onMessage.addListener(commandListener);
-
-async function storageFetch(key) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(key, stored => resolve(stored[key]));
-  });
-}
 
 function commandListener(m, sender) {
   let session;
