@@ -1,0 +1,35 @@
+{
+  "manifest_version": 2,
+  "name": "eVal",
+  "version": "0.2",
+
+  "description": "TealiumIQ validation tool",
+  "icons": {},
+
+  "author": "Sem Blaksmark",
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_icon": "internet.png"
+  },
+  "content_scripts": [
+    {
+      "run_at": "document_start",
+      "matches": [
+        "http://*/*/",
+        "https://*/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],  "options_page": "options.html",
+  "permissions": [
+    "storage",
+    "tabs",
+    "http://*/*/",
+    "https://*/*"
+]
+}

@@ -1,0 +1,171 @@
+{
+  "account": "pandora",
+  "profiles": [
+    {
+      "name": "default",
+      "events": {
+        "isGroup": true,
+        "key": "event"
+      },
+      "override": false,
+      "keyGroups": [
+        {
+          "name": "event",
+          "hidden": false,
+          "keys": [
+            "estore_event",
+            "custom_event",
+            "event_type",
+            "social_share"
+          ]
+        },
+        {
+          "name": "global",
+          "hidden": false,
+          "keys": [
+            "page_type",
+            "page_name",
+            "site_section_levels",
+            "site_section_levels_id",
+            "customer_login_status",
+            "language",
+            "market",
+            "http_code",
+            "user_device_type"
+          ]
+        },
+        {
+          "name": "customer",
+          "hidden": false,
+          "keys": [
+            "customer_email_id",
+            "customer_dw_id",
+            "customer_crm_id",
+            "customer_gender",
+            "customer_zip",
+            "customer_city",
+            "customer_login_method",
+            "customer_has_creditcard"
+          ]
+        },
+        {
+          "name": "product",
+          "hidden": false,
+          "keys": [
+            "product_sku",
+            "product_id",
+            "product_name",
+            "product_category",
+            "product_brand",
+            "product_price",
+            "product_unit_price",
+            "product_availability",
+            "product_quantity",
+            "product_url",
+            "product_image_url",
+            "product_rating",
+            "product_number_of_reviews",
+            "product_label",
+            "product_color",
+            "product_size",
+            "product_giftset_id",
+            "product_finding_method",
+            "product_distribution_method",
+            "product_collection_store",
+            "product_gift_status"
+          ]
+        },
+        {
+          "name": "order",
+          "hidden": false,
+          "keys": [
+            "order_id",
+            "order_payment_type",
+            "order_shipping_method",
+            "order_shipping_cost",
+            "order_campaign",
+            "order_coupon",
+            "order_coupon_discount",
+            "order_type",
+            "order_tax_value",
+            "order_total_discount",
+            "product_price_nodiscount_notax",
+            "product_price_notax",
+            "gift_card_message"
+          ]
+        },
+        {
+          "name": "cart_product",
+          "hidden": false,
+          "keys": [
+            "cart_product_sku",
+            "cart_product_id",
+            "cart_product_name",
+            "cart_product_category",
+            "cart_product_brand",
+            "cart_product_unit_price",
+            "cart_product_quantity",
+            "cart_product_color",
+            "cart_product_size"
+          ]
+        },
+        {
+          "name": "store_search",
+          "hidden": false,
+          "keys": [
+            "store_lookup_message",
+            "store_search_results",
+            "store_search_zip",
+            "store_search_range",
+            "store_search_items"
+          ]
+        },
+        {
+          "name": "builtin",
+          "hidden": true,
+          "keys": [
+            "cp.utag_main_v_id",
+            "cp.utag_main__sn",
+            "cp.utag_main__ss",
+            "cp.utag_main__st",
+            "cp.utag_main__se",
+            "cp.utag_main_ses_id",
+            "cp.utag_main__pn",
+            "dom.referrer",
+            "dom.title",
+            "dom.domain",
+            "dom.query_string",
+            "dom.hash",
+            "dom.url",
+            "dom.pathname",
+            "dom.viewport_height",
+            "dom.viewport_width",
+            "ut.domain",
+            "ut.version",
+            "ut.event",
+            "ut.visitor_id",
+            "ut.session_id",
+            "ut.account",
+            "ut.profile",
+            "ut.env",
+            "tealium_event",
+            "tealium_visitor_id",
+            "tealium_session_id",
+            "tealium_datasource",
+            "tealium_account",
+            "tealium_profile",
+            "tealium_environment",
+            "tealium_random",
+            "tealium_library_name",
+            "tealium_library_version",
+            "tealium_timestamp_epoch",
+            "tealium_timestamp_utc",
+            "tealium_timestamp_local",
+            "tealium_session_number",
+            "tealium_session_event_number"
+          ]
+        }
+      ]
+    }
+  ]
+}

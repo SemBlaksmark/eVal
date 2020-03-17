@@ -1,0 +1,20 @@
+body {
+    margin: 0px;
+    display: flex;
+}
+button {
+    border: none;
+    background: none;
+}
+#calls {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: green;
+}
+#layers {
+    display: none;
+}
+#details {
+    background: blue;
+}
