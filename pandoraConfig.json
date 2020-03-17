@@ -1,13 +1,11 @@
 {
-  "account": "pandora",
-  "profiles": [
-    {
-      "name": "default",
+  "pandora": {
+    "default": {
+      "override": false,
       "events": {
         "isGroup": true,
         "key": "event"
       },
-      "override": false,
       "keyGroups": [
         {
           "name": "event",
@@ -167,5 +165,5 @@
         }
       ]
     }
-  ]
+  }
 }
