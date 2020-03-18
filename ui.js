@@ -1,10 +1,11 @@
-let info = Object.fromEntries(location.search.substr(1).split('&').map(entry => entry.split('=')));
-let profileConfig;
-document.title = `eVal ${info.host}`;
+const info = Object.fromEntries(location.search.substr(1).split('&').map(entry => entry.split('=')));
+let config;
 
 (async () => {
-  profileConfig = await getConfig(info.account, info.profile);
-  if (Object.keys(profileConfig).length === 0) alert('something\'s wrong');
+  document.title = `eVal ${info.host}`;
+
+  config = await getConfig(info.account, info.profile);
+  if (Object.keys(config).length === 0) alert('something\'s wrong');
 
   chrome.runtime.onMessage.addListener(m => {
     switch (m.command) {
@@ -27,12 +28,12 @@ document.title = `eVal ${info.host}`;
 })();
 
 async function getConfig(account, profile) {
-  let config = await storageFetch('config');
+  let stored = await storageFetch('config');
+  let accountCfg = stored && stored[account];
 
-  config = config[account];
-  if (config && config.default) {
-    if (config[profile]) return config[profile].override ? config[profile] : Object.assign(config.default, config[profile]);
-    return config.default;
+  if (accountCfg && accountCfg.default) {
+    if (accountCfg[profile]) return accountCfg[profile].override ? accountCfg[profile] : Object.assign(accountCfg.default, accountCfg[profile]);
+    return accountCfg.default;
   }
   return {};
 }
