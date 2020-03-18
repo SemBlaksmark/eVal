@@ -6,9 +6,8 @@
         "isGroup": true,
         "key": "event"
       },
-      "keyGroups": [
-        {
-          "name": "event",
+      "keyGroups": {
+        "event": {
           "hidden": false,
           "keys": [
             "estore_event",
@@ -17,8 +16,7 @@
             "social_share"
           ]
         },
-        {
-          "name": "global",
+        "global": {
           "hidden": false,
           "keys": [
             "page_type",
@@ -32,8 +30,7 @@
             "user_device_type"
           ]
         },
-        {
-          "name": "customer",
+        "customer": {
           "hidden": false,
           "keys": [
             "customer_email_id",
@@ -46,8 +43,7 @@
             "customer_has_creditcard"
           ]
         },
-        {
-          "name": "product",
+        "product": {
           "hidden": false,
           "keys": [
             "product_sku",
@@ -73,8 +69,7 @@
             "product_gift_status"
           ]
         },
-        {
-          "name": "order",
+        "order": {
           "hidden": false,
           "keys": [
             "order_id",
@@ -92,8 +87,7 @@
             "gift_card_message"
           ]
         },
-        {
-          "name": "cart_product",
+        "cart_product": {
           "hidden": false,
           "keys": [
             "cart_product_sku",
@@ -107,8 +101,7 @@
             "cart_product_size"
           ]
         },
-        {
-          "name": "store_search",
+        "store_search": {
           "hidden": false,
           "keys": [
             "store_lookup_message",
@@ -118,8 +111,7 @@
             "store_search_items"
           ]
         },
-        {
-          "name": "builtin",
+        "builtin": {
           "hidden": true,
           "keys": [
             "cp.utag_main_v_id",
@@ -163,7 +155,7 @@
             "tealium_session_event_number"
           ]
         }
-      ]
+      }
     }
   }
 }

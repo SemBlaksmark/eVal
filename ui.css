@@ -1,8 +1,17 @@
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
 body {
     margin: 0px;
     display: flex;
 }
-button {
+.call {
+    /*display: flex;
+    flex-direction: column;*/
+    margin: 4px;
     border: none;
     background: none;
 }
@@ -10,7 +19,7 @@ button {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: green;
+    border: 2px solid black;
 }
 #layers {
     display: none;
