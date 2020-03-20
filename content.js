@@ -49,8 +49,10 @@ function main(info) {
     tealiumScript.addEventListener('load', e => {
       let call = {
         type: 'pageView',
-        udo: window.utag_data,
-        dataLayer: window.utag.data,
+        data: {
+          udo: window.utag_data,
+          dataLayer: window.utag.data,
+        }
       };
 
       /* Override utag.loader.LOAD */
@@ -59,7 +61,7 @@ function main(info) {
         if (utag.sender[tag]) {
           utag.sender[tag].send_old = utag.sender[tag].send;
           utag.sender[tag].send = function (a, b) {
-            call[tag] = b;
+            call.data[tag] = b;
             utag.sender[tag].send_old.apply(this, arguments);
           }
         }
@@ -70,7 +72,7 @@ function main(info) {
       utag.track_old = utag.track;
       utag.track = function (a, b) {
         call.type = a.event || a;
-        call.dataLayer = b || a.data;
+        call.data.dataLayer = b || a.data;
         utag.track_old.apply(this, arguments);
         processCall();
       }
@@ -87,7 +89,7 @@ function main(info) {
         window.postMessage({ eVal: 'call', call: call });
         eValCalls.push(call);
         localStorage.eValCalls = JSON.stringify(eValCalls);
-        call = {};
+        call = { data: {} };
       }
     });
   }
