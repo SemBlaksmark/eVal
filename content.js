@@ -49,7 +49,7 @@ function main(info) {
     tealiumScript.addEventListener('load', e => {
       let call = {
         type: 'pageView',
-        data: {
+        layers: {
           udo: window.utag_data,
           dataLayer: window.utag.data,
         }
@@ -61,7 +61,7 @@ function main(info) {
         if (utag.sender[tag]) {
           utag.sender[tag].send_old = utag.sender[tag].send;
           utag.sender[tag].send = function (a, b) {
-            call.data[tag] = b;
+            call.layers[tag] = b;
             utag.sender[tag].send_old.apply(this, arguments);
           }
         }
@@ -72,7 +72,7 @@ function main(info) {
       utag.track_old = utag.track;
       utag.track = function (a, b) {
         call.type = a.event || a;
-        call.data.dataLayer = b || a.data;
+        call.layers.dataLayer = b || a.data;
         utag.track_old.apply(this, arguments);
         processCall();
       }
@@ -86,10 +86,10 @@ function main(info) {
 
       function processCall() {
         console.log('call');
-        window.postMessage({ eVal: 'call', call: call });
         eValCalls.push(call);
         localStorage.eValCalls = JSON.stringify(eValCalls);
-        call = { data: {} };
+        window.postMessage({ eVal: 'call', call: call });
+        call = { layers: {} };
       }
     });
   }

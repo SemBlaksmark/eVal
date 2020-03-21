@@ -8,22 +8,38 @@ body {
     margin: 0px;
     display: flex;
 }
-.call {
-    /*display: flex;
-    flex-direction: column;*/
-    margin: 4px;
-    border: none;
-    background: none;
-}
 #calls {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    border: 2px solid black;
+    border-right: 2px solid black;
 }
 #layers {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    border-right: 2px solid black;
 }
 #details {
     background: blue;
+}
+.call {
+    padding: 4px;
+    border: none;
+    background: none;
+}
+.call * {
+    pointer-events: none;
+}
+.call h2 {
+    border-bottom: 1px solid blue;
+}
+.call.selected {
+    background: lightblue;
+}
+.layersContainer {
+    display: none;
+}
+.layersContainer.selected {
+    display: block;
 }
