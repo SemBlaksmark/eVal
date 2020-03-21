@@ -48,12 +48,19 @@ function addCall(call) {
   let id = callIndex++;
   call.layers = Object.fromEntries(Object.entries(call.layers).map(([id, layer]) => [id, Object.fromEntries(Object.entries(config.keyGroups).map(([name, groupObj]) => [name, Object.fromEntries(groupObj.keys.map(key => [key, layer[key]]))]))]));
 
-  let callEl = makeCallElement(call, id);
-  let layersEl = makeLayersContainer(call.layers, id);
-  //let detailsEl = makeDetailElements();
+  let layerContainerEl = makeEl('div', null, ['layersContainer']);
+  let detailViewFragment = document.createDocumentFragment();
+  layerContainerEl.dataset.callId = id;
+  Object.entries(call.layers).forEach(([layerId, layer]) => {
+    layerContainerEl.append(makeLayerElement(layerId, id));
+    detailViewFragment.append(makeDetailElement(layer, layerId, id));
+  });
 
+  let callEl = makeCallElement(call, id);
+
+  $('#inspect').append(detailViewFragment);
+  $('#layers').append(layerContainerEl);
   $('#calls').append(callEl);
-  $('#layers').append(layersEl);
 }
 function makeCallElement(call, id) {
   let el = makeEl('div', id, ['call', call.type]);
@@ -63,18 +70,19 @@ function makeCallElement(call, id) {
   });
   return el;
 }
-function makeLayersContainer(layers, callId) {
-  let el = makeEl('div', null, ['layersContainer']);
-  el.dataset.callId = callId;
-  Object.entries(layers).forEach(([layerId, layer]) => {
-    el.append(makeLayerElement(layerId, callId));
-  })
-  return el;
-}
+
 function makeLayerElement(id, callId) {
   let el = makeEl('div', null, ['layer'], id);
   el.dataset.layerId = id;
   el.dataset.callId = callId;
+  return el;
+}
+
+function makeDetailElement(layer, layerId, callId) {
+  let el = makeEl('div', null, ['detail'], JSON.stringify(layer));
+  el.dataset.layerId = layerId;
+  el.dataset.callId = callId;
+
   return el;
 }
 
