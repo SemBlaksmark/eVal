@@ -84,10 +84,18 @@ function makeLayerElement(id, callId) {
 }
 
 function makeDetailElement(layer, layerId, callId) {
-  let el = makeEl('div', null, ['detail'], JSON.stringify(layer));
+  let el = makeEl('div', null, ['detail']);
   el.dataset.layerId = layerId;
   el.dataset.callId = callId;
 
+  Object.entries(layer).forEach(([groupName, group]) =>  {
+    groupEl = makeEl('div', null, [groupName]);
+    groupEl.append(makeEl('h2', null, null, groupName));
+    Object.entries(group).forEach(([key, value]) => {
+      groupEl.append(makeEl('div', null, null, `${key}: ${value}`));
+    });
+    el.append(groupEl);
+  });
 
   return el;
 }
@@ -115,7 +123,7 @@ function getEvents(dataLayer) {
 }
 
 function selectCall(el) {
-  if (el.classList.contains('selected')) return;
+  if (el.matches('#calls, .selected')) return;
   $('#calls .call.selected')?.classList.toggle('selected');
   el.classList.add('selected');
   $('#layers').querySelector('.layersContainer.selected')?.classList.toggle('selected');
@@ -128,6 +136,7 @@ function selectCall(el) {
 
 function selectLayer(el) {
   let container = $(`#layers .layersContainer[data-call-id="${el.dataset.callId}"`);
+  if (!container) return;
   if (!el.classList.contains('selected')) {
     container.querySelector('.layer.selected')?.classList.toggle('selected');
     el.classList.add('selected');
