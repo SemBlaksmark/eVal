@@ -8,6 +8,11 @@ body {
     margin: 0px;
     display: flex;
 }
+h2 {
+    font-size: 1.2em;
+    padding: 2px;
+    border-bottom: 1px solid blue;
+}
 #calls {
     display: flex;
     flex-direction: column;
@@ -32,10 +37,7 @@ body {
     pointer-events: none;
 }
 .call h2 {
-    font-size: 1.2em;
-    padding: 2px;
     margin: 3px 8px;
-    border-bottom: 1px solid blue;
 }
 .call.selected {
     background: lightblue;
