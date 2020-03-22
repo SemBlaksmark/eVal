@@ -66,3 +66,10 @@ h2 {
 .hidden {
     background: green;
 }
+.keyPair.nokey {
+    text-decoration: line-through;
+}
+.keyPair.empty {
+    font-weight: bold;
+    color: red;
+}

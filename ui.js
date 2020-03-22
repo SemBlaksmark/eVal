@@ -68,8 +68,8 @@ function processLayer([id, layer]) {
   let keyPairs = Object.fromEntries(Object.entries(layer).map(processKeyPair));
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
     let definition = { visibility: groupDefinition.hidden ? 'hidden' : 'visible' };
-    definition.keys = Object.fromEntries(groupDefinition.keys.map(key => [key, keyPairs[key] || { value: keyPairs[key], status: 'nokey' }]));
-    if (Object.values(definition.keys).some(value => value.status !== 'nokey')) definition.status = 'ok';
+    definition.keys = Object.fromEntries(groupDefinition.keys.map(key => [key, keyPairs[key] || { value: keyPairs[key], status: ['nokey'] }]));
+    if (Object.values(definition.keys).some(value => !~value.status.indexOf('nokey'))) definition.status = 'ok';
     else {
       definition.status = 'nokeys';
       definition.visibility = 'hidden';
@@ -79,16 +79,21 @@ function processLayer([id, layer]) {
   return [id, processed];
 }
 function processKeyPair([key, value]) {
-  let status;
+  let status = [];
   if (value === null) status = 'missing';
-  else if (Array.isArray(value)) status = value.length > 0 ? 'array' : 'empty';
+  else if (Array.isArray(value)) {
+    status.push('array');
+    if (value.length === 0 ) status.push('empty');
+  }
   else {
     let type = typeof value;
-    if (type === 'undefined') status = 'missing';
+    if (type === 'undefined') status.push('missing');
     else if (type === 'object') {
-      status = Object.keys(value).length > 0 ? 'object' : 'empty';
+      status.push('object');
+      if (Object.keys(value).length === 0) status.push('empty');
     } else {
-      status = type === 'string' && value.length === 0 ? 'empty' : type;
+      status.push(type);
+      if(type === 'string' && value.length === 0) status.push('empty');
     }
   }
   return [key, { value: value, status: status }]
@@ -140,7 +145,7 @@ function createDetails(call) {
       let content = makeEl('div', null, [group.visibility])
       content.append(makeEl('h2', null, null, groupName));
       Object.entries(group.keys).forEach(([key, valueObj]) => {
-        content.append(makeEl('div', null, null, `${key}: ${valueObj.value}`));
+        content.append(makeEl('div', null, ['keyPair', ...valueObj.status], `${key}: ${valueObj.value}`));
       });
       body.append(content);
     });
