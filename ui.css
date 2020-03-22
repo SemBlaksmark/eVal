@@ -46,6 +46,15 @@ body {
 .layersContainer.selected {
     display: block;
 }
+.layer * {
+    pointer-events: none;
+}
+.layer.selected {
+    background-color: lightblue;
+}
 .detail {
     display: none;
+}
+.detail.selected {
+    display: block;
 }

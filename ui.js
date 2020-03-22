@@ -41,12 +41,15 @@ function messageListener(m) {
 }
 
 function windowLoaded() {
-  $('#calls').addEventListener('click', selectCall);
+  $('#calls').addEventListener('click', e => selectCall(e.target));
+  $('#layers').addEventListener('click', e => selectLayer(e.target));
 }
 
 function addCall(call) {
   let id = callIndex++;
-  call.layers = Object.fromEntries(Object.entries(call.layers).map(([id, layer]) => [id, Object.fromEntries(Object.entries(config.keyGroups).map(([name, groupObj]) => [name, Object.fromEntries(groupObj.keys.map(key => [key, layer[key]]))]))]));
+  call.layers = Object.fromEntries(Object.entries(call.layers).map(([id, layer]) =>
+    [id, Object.fromEntries(Object.entries(config.keyGroups).map(([name, groupObj]) =>
+      [name, Object.fromEntries(groupObj.keys.map(key => [key, layer[key]]))]))]));
 
   let layerContainerEl = makeEl('div', null, ['layersContainer']);
   let detailViewFragment = document.createDocumentFragment();
@@ -61,6 +64,7 @@ function addCall(call) {
   $('#inspect').append(detailViewFragment);
   $('#layers').append(layerContainerEl);
   $('#calls').append(callEl);
+  selectCall(callEl);
 }
 function makeCallElement(call, id) {
   let el = makeEl('div', id, ['call', call.type]);
@@ -83,6 +87,7 @@ function makeDetailElement(layer, layerId, callId) {
   el.dataset.layerId = layerId;
   el.dataset.callId = callId;
 
+
   return el;
 }
 
@@ -95,7 +100,6 @@ function makeEl(type, id, classes, text) {
 }
 
 function getEvents(dataLayer) {
-  console.log(dataLayer);
   if (config.events.isGroup) {
     let events = dataLayer[config.events.key];
     if (events) return Object.values(events).reduce((list, event) => Array.isArray(event) ? [...list, ...event] : [...list, event], []);
@@ -109,13 +113,26 @@ function getEvents(dataLayer) {
   return [];
 }
 
-function selectCall(e) {
-/*  let id = e.target?.dataset?.id;
-  if (typeof id === undefined) return;
-  $('#calls').querySelectorAll('.call').forEach(call => call.classList.remove('selected'));
-  e.target.classList.add('selected');
-  $('#layers').querySelectorAll('.layersContainer').forEach(container => {
-    if (container.dataset.call === id) container.classList.add('selected');
-    else container.classList.remove('selected');
-  });*/
+function selectCall(el) {
+  if (el.classList.contains('selected')) return;
+  $('#calls .call.selected')?.classList.toggle('selected');
+  el.classList.add('selected');
+  $('#layers').querySelector('.layersContainer.selected')?.classList.toggle('selected');
+  let container = $('#layers').querySelector(`.layersContainer[data-call-id="${el.id}"`);
+  if (container) {
+    container.classList.toggle('selected');
+    selectLayer(container.querySelector('.layer.selected') || container.querySelector('.layer[data-layer-id="dataLayer"]'));
+  }
+}
+
+function selectLayer(el) {
+  let container = $(`#layers .layersContainer[data-call-id="${el.dataset.callId}"`);
+  if (!el.classList.contains('selected')) {
+    container.querySelector('.layer.selected')?.classList.toggle('selected');
+    el.classList.add('selected');
+  }
+  $$('.detail').forEach(detail => {
+    if (detail.dataset.callId === el.dataset.callId && detail.dataset.layerId === el.dataset.layerId) detail.classList.add('selected');
+    else detail.classList.remove('selected');
+  });
 }
