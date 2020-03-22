@@ -60,3 +60,9 @@ h2 {
 .detail.selected {
     display: block;
 }
+.detail .head {
+    display: flex;
+}
+.hidden {
+    background: green;
+}
