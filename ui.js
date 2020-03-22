@@ -12,7 +12,8 @@ let config;
   if (Object.keys(config).length === 0) alert('something\'s wrong');
 
   chrome.runtime.onMessage.addListener(messageListener);
-  window.addEventListener('load', windowLoaded);
+  if (document.readyState === 'complete') DOMReady();
+  else document.addEventListener('DOMContentLoaded', DOMReady);
 })();
 
 async function getConfig(account, profile) {
@@ -40,7 +41,7 @@ function messageListener(m) {
   }
 }
 
-function windowLoaded() {
+function DOMReady() {console.log('DOM READY')
   $('#calls').addEventListener('click', e => selectCall(e.target));
   $('#layers').addEventListener('click', e => selectLayer(e.target));
 }
