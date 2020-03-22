@@ -118,7 +118,7 @@ function selectCall(el) {
   $('#calls .call.selected')?.classList.toggle('selected');
   el.classList.add('selected');
   $('#layers').querySelector('.layersContainer.selected')?.classList.toggle('selected');
-  let container = $('#layers').querySelector(`.layersContainer[data-call-id="${el.id}"`);
+  let container = $(`#layers .layersContainer[data-call-id="${el.id}"`);
   if (container) {
     container.classList.toggle('selected');
     selectLayer(container.querySelector('.layer.selected') || container.querySelector('.layer[data-layer-id="dataLayer"]'));
