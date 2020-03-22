@@ -18,7 +18,7 @@ let config;
 
 async function getConfig(account, profile) {
   let stored = await storageFetch('config');
-  let accountCfg = stored && stored[account];
+  let accountCfg = stored && JSON.parse(stored)[account];
 
   if (accountCfg && accountCfg.default) {
     if (accountCfg[profile]) return accountCfg[profile].override ? accountCfg[profile] : Object.assign(accountCfg.default, accountCfg[profile]);
@@ -41,7 +41,7 @@ function messageListener(m) {
   }
 }
 
-function DOMReady() {console.log('DOM READY')
+function DOMReady() {
   $('#calls').addEventListener('click', e => selectCall(e.target));
   $('#layers').addEventListener('click', e => selectLayer(e.target));
 }
