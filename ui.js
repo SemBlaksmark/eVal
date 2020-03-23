@@ -67,12 +67,13 @@ function processCall(id, call) {
 function processLayer([id, layer]) {
   let keyPairs = Object.fromEntries(Object.entries(layer).map(processKeyPair));
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
-    let definition = { visibility: groupDefinition.hidden ? 'hidden' : 'visible' };
+    let definition = { ...groupDefinition };
     definition.keys = Object.fromEntries(groupDefinition.keys.map(key => [key, keyPairs[key] || { value: keyPairs[key], status: ['nokey'] }]));
-    if (Object.values(definition.keys).some(value => !~value.status.indexOf('nokey'))) definition.status = 'ok';
-    else {
-      definition.status = 'nokeys';
-      definition.visibility = 'hidden';
+    if (Object.values(definition.keys).some(value => !~value.status.indexOf('nokey'))) {
+      definition.hasData = true;
+    } else {
+      definition.hasData = false;
+      definition.hidden = true;
     }
     return [groupName, definition];
   }));
@@ -83,7 +84,7 @@ function processKeyPair([key, value]) {
   if (value === null) status = 'missing';
   else if (Array.isArray(value)) {
     status.push('array');
-    if (value.length === 0 ) status.push('empty');
+    if (value.length === 0) status.push('empty');
   }
   else {
     let type = typeof value;
@@ -93,7 +94,7 @@ function processKeyPair([key, value]) {
       if (Object.keys(value).length === 0) status.push('empty');
     } else {
       status.push(type);
-      if(type === 'string' && value.length === 0) status.push('empty');
+      if (type === 'string' && value.length === 0) status.push('empty');
     }
   }
   return [key, { value: value, status: status }]
@@ -124,9 +125,12 @@ function createLayers(call) {
   let container = makeEl('div', null, ['layersContainer']);
   container.dataset.callId = call.id;
   Object.keys(call.layers).forEach(layerId => {
-    let el = makeEl('div', null, ['layer'], layerId);
+    let el = makeEl('div', null, ['layer']);
     el.dataset.layerId = layerId;
     el.dataset.callId = call.id;
+
+    el.append(makeEl('div', null, null, layerId));
+    el.append(makeEl('div', null, null, 'name '));
     container.append(el);
   });
   $('#layers').append(container);
@@ -139,10 +143,18 @@ function createDetails(call) {
     el.dataset.callId = call.id;
 
     let head = makeEl('div', null, ['head']);
+    head.addEventListener('click', e => toggleGroup(e.target));
     let body = makeEl('div', null, ['body']);
     Object.entries(layer).forEach(([groupName, group]) => {
-      head.append(makeEl('div', null, null, groupName));
-      let content = makeEl('div', null, [group.visibility])
+      let groupControl = makeEl('div', null, ['groupControl'], groupName);
+      if (!group.hidden) groupControl.classList.add('active');
+      if (!group.hasData) groupControl.classList.add('nodata');
+      groupControl.dataset.callId = call.id;
+      groupControl.dataset.layerId = layerId;
+      groupControl.dataset.groupName = groupName;
+      head.append(groupControl);
+      let content = makeEl('div', null, ['group', groupName]);
+      if (group.hidden) content.classList.add('hidden');
       content.append(makeEl('h2', null, null, groupName));
       Object.entries(group.keys).forEach(([key, valueObj]) => {
         content.append(makeEl('div', null, ['keyPair', ...valueObj.status], `${key}: ${valueObj.value}`));
@@ -152,7 +164,7 @@ function createDetails(call) {
     el.append(head);
     el.append(body);
     fragment.append(el);
-  })
+  });
   $('#inspect').append(fragment);
 }
 function makeEl(type, id, classes, text) {
@@ -164,9 +176,9 @@ function makeEl(type, id, classes, text) {
 }
 
 function selectCall(el) {
-  if (el.matches('#calls, .selected')) return;
-  $('#calls .call.selected')?.classList.toggle('selected');
-  el.classList.add('selected');
+  if (!el.matches('.call') || el.matches('.selected')) return;
+  el.parentElement.querySelector('.selected')?.classList.toggle('selected');
+  el.classList.toggle('selected');
   $('#layers').querySelector('.layersContainer.selected')?.classList.toggle('selected');
   let container = $(`#layers .layersContainer[data-call-id="${el.id}"`);
   if (container) {
@@ -176,14 +188,17 @@ function selectCall(el) {
 }
 
 function selectLayer(el) {
-  let container = $(`#layers .layersContainer[data-call-id="${el.dataset.callId}"`);
-  if (!container) return;
-  if (!el.classList.contains('selected')) {
-    container.querySelector('.layer.selected')?.classList.toggle('selected');
-    el.classList.add('selected');
-  }
+  if (!el.matches('.layer')) return;
+  el.parentElement.querySelector('.selected')?.classList.toggle('selected');
+  el.classList.add('selected');
   $$('.detail').forEach(detail => {
     if (detail.dataset.callId === el.dataset.callId && detail.dataset.layerId === el.dataset.layerId) detail.classList.add('selected');
     else detail.classList.remove('selected');
   });
+}
+
+function toggleGroup(el) {
+  if (!el.classList.contains('groupControl')) return;
+  el.classList.toggle('active');
+  $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-layer-id="${el.dataset.layerId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
 }

@@ -29,6 +29,7 @@ h2 {
     background: blue;
 }
 .call {
+    user-select: none;
     padding: 4px;
     border: none;
     background: none;
@@ -40,7 +41,7 @@ h2 {
     margin: 3px 8px;
 }
 .call.selected {
-    background: lightblue;
+    background: lightskyblue;
 }
 .layersContainer {
     display: none;
@@ -48,11 +49,15 @@ h2 {
 .layersContainer.selected {
     display: block;
 }
+.layer {
+    user-select: none;
+    padding: 3px;
+}
 .layer * {
     pointer-events: none;
 }
 .layer.selected {
-    background-color: lightblue;
+    background-color: lightskyblue;
 }
 .detail {
     display: none;
@@ -62,9 +67,26 @@ h2 {
 }
 .detail .head {
     display: flex;
+    user-select: none;
+}
+.groupControl {
+    margin: 3px;
+    padding: 2px;
+    border: 1px dashed lightskyblue;
+    cursor: default;
+}
+.groupControl.nodata {
+    border: none;
+    color: lightgray;
+}
+.groupControl.active {
+    background: lightskyblue;
+}
+.groupControl.active.nodata {
+    color: red;
 }
 .hidden {
-    background: green;
+    display: none;
 }
 .keyPair.nokey {
     text-decoration: line-through;
