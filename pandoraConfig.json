@@ -111,6 +111,12 @@
             "store_search_items"
           ]
         },
+        "cookies": {
+          "hidden": true,
+          "keys": [
+            "/^cp\\./"
+          ]
+        },
         "builtin": {
           "hidden": true,
           "keys": [

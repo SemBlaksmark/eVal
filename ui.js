@@ -22,12 +22,19 @@ async function getConfig(account, profile) {
   let accountCfg = stored && JSON.parse(stored)[account];
 
   if (accountCfg && accountCfg.default) {
+    Object.values(accountCfg).forEach(profile => {
+      Object.values(profile.keyGroups).forEach(group => {
+        group.keys = group.keys.map(key => {
+          let m = key.match(/^\/(.+)\/$/)?.[1];
+          return m ? new RegExp(m) : key;
+        });
+      });
+    });
     if (accountCfg[profile]) return accountCfg[profile].override ? accountCfg[profile] : Object.assign(accountCfg.default, accountCfg[profile]);
     return accountCfg.default;
   }
   return {};
 }
-
 async function storageFetch(key) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(key, stored => resolve(stored[key]));
@@ -66,18 +73,27 @@ function processCall(id, call) {
 }
 function processLayer([id, layer]) {
   let keyPairs = Object.fromEntries(Object.entries(layer).map(processKeyPair));
+  let matched = {};
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
     let group = { ...groupDefinition };
     group.keys = {};
     for (let key of groupDefinition.keys) {
-      if (keyPairs.hasOwnProperty(key)) {
-        group.keys[key] = keyPairs[key];
-        delete keyPairs[key];
+      if (key instanceof RegExp) {
+        Object.entries(keyPairs).forEach(([pairKey, pairValue]) => {
+          if (key.test(pairKey)) {
+            matched[pairKey] = true;
+            group.keys[pairKey] = pairValue;
+          }
+        });
       } else {
-        group.keys[key] = { value: undefined, status: ['nokey'] };
+        if (keyPairs.hasOwnProperty(key)) {
+          group.keys[key] = keyPairs[key];
+          matched[key] = true;
+        } else {
+          group.keys[key] = { value: undefined, status: ['nokey'] };
+        }
       }
     };
-    //group.keys = Object.fromEntries(groupDefinition.keys.map(key => [key, keyPairs[key] || { value: keyPairs[key], status: ['nokey'] }]));
     if (Object.values(group.keys).some(value => !~value.status.indexOf('nokey'))) {
       group.hasData = true;
     } else {
@@ -86,7 +102,8 @@ function processLayer([id, layer]) {
     }
     return [groupName, group];
   }));
-  if (Object.keys(keyPairs).length > 0) processed.unknown = { hidden: false, keys: keyPairs, hasData: true };
+  let unmatched = Object.entries(keyPairs).filter(([key, value]) => !matched[key]);
+  if (unmatched.length > 0) processed.unknown = { hidden: false, keys: Object.fromEntries(unmatched), hasData: true };
   return [id, processed];
 }
 function processKeyPair([key, value]) {
