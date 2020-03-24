@@ -5,13 +5,17 @@ html {
     box-sizing: inherit;
 }
 body {
+    background: #101818;
+    color: cornflowerblue;
     margin: 0px;
-    display: flex;
+    display: grid;
+    grid-template-columns: min-content min-content auto;
+    white-space: nowrap;
 }
 h2 {
     font-size: 1.2em;
     padding: 2px;
-    border-bottom: 1px solid blue;
+    border-bottom: 1px solid seagreen;
 }
 #calls {
     display: flex;
@@ -25,8 +29,8 @@ h2 {
     height: 100vh;
     border-right: 2px solid black;
 }
-#details {
-    background: blue;
+#inspect {
+    padding-left: 8px;
 }
 .call {
     user-select: none;
@@ -38,10 +42,11 @@ h2 {
     pointer-events: none;
 }
 .call h2 {
+    text-transform: uppercase;
     margin: 3px 8px;
 }
 .call.selected {
-    background: lightskyblue;
+    background: midnightblue;
 }
 .layersContainer {
     display: none;
@@ -57,7 +62,7 @@ h2 {
     pointer-events: none;
 }
 .layer.selected {
-    background-color: lightskyblue;
+    background-color: midnightblue;
 }
 .detail {
     display: none;
@@ -70,28 +75,37 @@ h2 {
     user-select: none;
 }
 .groupControl {
+    text-transform: capitalize;
     margin: 3px;
     padding: 2px;
-    border: 1px dashed lightskyblue;
     cursor: default;
 }
 .groupControl.nodata {
     border: none;
-    color: lightgray;
+    color: gray;
 }
 .groupControl.active {
-    background: lightskyblue;
+    background: midnightblue;
 }
 .groupControl.active.nodata {
     color: red;
 }
-.hidden {
+.group {
+    display: grid;
+    grid-template-columns: min-content auto;
+    grid-column-gap: 8px;
+}
+.group h2 {
+    text-transform: capitalize;
+    grid-column: 1 / span 2;
+}
+.group.hidden {
     display: none;
 }
-.keyPair.nokey {
+.key.nokey {
     text-decoration: line-through;
 }
-.keyPair.empty {
+.key.empty {
     font-weight: bold;
     color: red;
 }

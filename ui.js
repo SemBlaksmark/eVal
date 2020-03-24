@@ -67,16 +67,26 @@ function processCall(id, call) {
 function processLayer([id, layer]) {
   let keyPairs = Object.fromEntries(Object.entries(layer).map(processKeyPair));
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
-    let definition = { ...groupDefinition };
-    definition.keys = Object.fromEntries(groupDefinition.keys.map(key => [key, keyPairs[key] || { value: keyPairs[key], status: ['nokey'] }]));
-    if (Object.values(definition.keys).some(value => !~value.status.indexOf('nokey'))) {
-      definition.hasData = true;
+    let group = { ...groupDefinition };
+    group.keys = {};
+    for (let key of groupDefinition.keys) {
+      if (keyPairs.hasOwnProperty(key)) {
+        group.keys[key] = keyPairs[key];
+        delete keyPairs[key];
+      } else {
+        group.keys[key] = { value: undefined, status: ['nokey'] };
+      }
+    };
+    //group.keys = Object.fromEntries(groupDefinition.keys.map(key => [key, keyPairs[key] || { value: keyPairs[key], status: ['nokey'] }]));
+    if (Object.values(group.keys).some(value => !~value.status.indexOf('nokey'))) {
+      group.hasData = true;
     } else {
-      definition.hasData = false;
-      definition.hidden = true;
+      group.hasData = false;
+      group.hidden = true;
     }
-    return [groupName, definition];
+    return [groupName, group];
   }));
+  if (Object.keys(keyPairs).length > 0) processed.unknown = { hidden: false, keys: keyPairs, hasData: true };
   return [id, processed];
 }
 function processKeyPair([key, value]) {
@@ -101,8 +111,17 @@ function processKeyPair([key, value]) {
 }
 function processEvents(dataLayer) {
   if (config.events.isGroup) {
-    let events = dataLayer[config.events.key].keys;
-    if (events) return Object.values(events).reduce((list, event) => Array.isArray(event) ? [...list, ...event.value] : [...list, event.value], []);
+    let eventGroup = dataLayer[config.events.key].keys;
+    return Object.values(eventGroup).reduce((list, eventKey) => {
+      if (eventKey.value) {
+        if (Array.isArray(eventKey.value)) {
+          list.push(...eventKey.value);
+        } else if (/string|number|bigint/.test(typeof eventKey.value)) {
+          list.push(eventKey.value);
+        }
+      }
+      return list;
+    }, []);
   }
   else {
     for (let group in dataLayer) {
@@ -130,7 +149,7 @@ function createLayers(call) {
     el.dataset.callId = call.id;
 
     el.append(makeEl('div', null, null, layerId));
-    el.append(makeEl('div', null, null, 'name '));
+    //el.append(makeEl('div', null, null, 'name '));
     container.append(el);
   });
   $('#layers').append(container);
@@ -157,7 +176,8 @@ function createDetails(call) {
       if (group.hidden) content.classList.add('hidden');
       content.append(makeEl('h2', null, null, groupName));
       Object.entries(group.keys).forEach(([key, valueObj]) => {
-        content.append(makeEl('div', null, ['keyPair', ...valueObj.status], `${key}: ${valueObj.value}`));
+        content.append(makeEl('div', null, ['key', ...valueObj.status], key));
+        content.append(makeEl('div', null, ['value', ...valueObj.status], JSON.stringify(valueObj.value)));
       });
       body.append(content);
     });
