@@ -182,7 +182,7 @@ function createDetails(call) {
     head.addEventListener('click', e => toggleGroup(e.target));
     let body = makeEl('div', null, ['body']);
     Object.entries(layer).forEach(([groupName, group]) => {
-      let groupControl = makeEl('div', null, ['groupControl'], groupName);
+      let groupControl = makeEl('h2', null, ['groupControl'], groupName);
       if (!group.hidden) groupControl.classList.add('active');
       if (!group.hasData) groupControl.classList.add('nodata');
       groupControl.dataset.callId = call.id;

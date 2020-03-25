@@ -13,37 +13,37 @@ body {
     white-space: nowrap;
 }
 h2 {
-    font-size: 1.2em;
-    padding: 2px;
+    font-size: 1.3em;
+    padding-bottom: 2px;
+    margin: 0 0 4px 0;
     border-bottom: 1px solid seagreen;
 }
 #calls {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    border-right: 2px solid black;
+    height: 100%;
+    min-height: 100vh;
+    padding: 8px;
+    border-right: 2px solid #182020;
 }
 #layers {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    border-right: 2px solid black;
+    height: 100%;
+    min-height: 100vh;
+    padding: 8px;
+    border-right: 2px solid #182020;
 }
-#inspect {
-    padding-left: 8px;
-}
+/*#inspect {
+}*/
 .call {
     user-select: none;
-    padding: 4px;
-    border: none;
-    background: none;
+    padding: 0 8px 1.3rem 8px;
 }
 .call * {
     pointer-events: none;
 }
 .call h2 {
     text-transform: uppercase;
-    margin: 3px 8px;
+}
+.call div {
+    margin-left: 4px;
 }
 .call.selected {
     background: midnightblue;
@@ -72,35 +72,37 @@ h2 {
 }
 .detail .head {
     display: flex;
+    border-bottom: 2px solid #182020;
     user-select: none;
 }
 .groupControl {
+    color: seagreen;
     text-transform: capitalize;
-    margin: 3px;
-    padding: 2px;
-    cursor: default;
+    padding: 0.6rem 8px 0.6rem 8px;
+    border: none;
 }
 .groupControl.nodata {
     border: none;
-    color: gray;
+    color: darkslategray;
 }
 .groupControl.active {
-    background: midnightblue;
-}
-.groupControl.active.nodata {
-    color: red;
+    background: #203030;
 }
 .group {
     display: grid;
     grid-template-columns: min-content auto;
     grid-column-gap: 8px;
+    margin: 0 0 1.3rem 8px;
+}
+.group.hidden {
+    display: none;
 }
 .group h2 {
     text-transform: capitalize;
     grid-column: 1 / span 2;
 }
-.group.hidden {
-    display: none;
+.group div {
+    margin: 1px 0;
 }
 .key.nokey {
     text-decoration: line-through;

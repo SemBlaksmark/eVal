@@ -117,48 +117,16 @@
             "/^cp\\./"
           ]
         },
-        "builtin": {
+        "tealium": {
           "hidden": true,
           "keys": [
-            "cp.utag_main_v_id",
-            "cp.utag_main__sn",
-            "cp.utag_main__ss",
-            "cp.utag_main__st",
-            "cp.utag_main__se",
-            "cp.utag_main_ses_id",
-            "cp.utag_main__pn",
-            "dom.referrer",
-            "dom.title",
-            "dom.domain",
-            "dom.query_string",
-            "dom.hash",
-            "dom.url",
-            "dom.pathname",
-            "dom.viewport_height",
-            "dom.viewport_width",
-            "ut.domain",
-            "ut.version",
-            "ut.event",
-            "ut.visitor_id",
-            "ut.session_id",
-            "ut.account",
-            "ut.profile",
-            "ut.env",
-            "tealium_event",
-            "tealium_visitor_id",
-            "tealium_session_id",
-            "tealium_datasource",
-            "tealium_account",
-            "tealium_profile",
-            "tealium_environment",
-            "tealium_random",
-            "tealium_library_name",
-            "tealium_library_version",
-            "tealium_timestamp_epoch",
-            "tealium_timestamp_utc",
-            "tealium_timestamp_local",
-            "tealium_session_number",
-            "tealium_session_event_number"
+            "/^(ut\\.|tealium_|dom\\.)/"
+          ]
+        },
+        "meta": {
+          "hidden": true,
+          "keys": [
+            "/^meta\\./"
           ]
         }
       }
