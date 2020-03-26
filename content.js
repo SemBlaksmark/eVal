@@ -23,7 +23,7 @@ function main(info) {
   embedPageScript();
   addBackgroundScriptCommunication();
   addEmbeddedScriptCommunication();
-  chrome.runtime.sendMessage({command: 'init', ...info});
+  chrome.runtime.sendMessage({ command: 'init', ...info });
 
   function embedPageScript() {
     let embed = document.createElement('script');
@@ -50,8 +50,8 @@ function main(info) {
     });
 
     var tealiumScript = document.querySelector('script[src*="utag.js"]');
-    console.log('Tealium script found');
-    tealiumScript.addEventListener('load', e => {
+    tealiumScript.addEventListener('load', tealiumOverride);
+    function tealiumOverride() {
       let call = {
         tags: {
           udo: {
@@ -81,20 +81,22 @@ function main(info) {
       utag.track_old = utag.track;
       utag.track = function (a, b) {
         call.type = a.event || a;
-        call.tags.dataLayer = {data : b || a.data };
+        call.tags.dataLayer = { data: b || a.data };
         utag.track_old.apply(this, arguments);
         processCall();
       }
 
       /* Override utag.loader.END */
-      utag.loader.END_old = utag.loader.END;
-      utag.loader.END = function () {
-        utag.loader.END_old.apply(this, arguments);
-        processCall();
+      if (utag.loader.ended) processCall();
+      else {
+        utag.loader.END_old = utag.loader.END;
+        utag.loader.END = function () {
+          utag.loader.END_old.apply(this, arguments);
+          processCall();
+        }
       }
-
+      
       function processCall() {
-        console.log(call);
         for (let tagId in call.tags) {
           call.tags[tagId].undefKeys = [];
           for (let key in call.tags[tagId].data) {
@@ -106,7 +108,7 @@ function main(info) {
         window.postMessage({ eVal: 'call', call: call });
         call = { tags: {} };
       }
-    });
+    }
   }
 
   function addBackgroundScriptCommunication() {
