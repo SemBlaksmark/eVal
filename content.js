@@ -54,12 +54,8 @@ function main(info) {
     function tealiumOverride() {
       let call = {
         tags: {
-          udo: {
-            data: window.utag_data
-          },
-          dataLayer: {
-            data: window.utag.data
-          },
+          udo: window.utag_data,
+          dataLayer: window.utag.data
         },
         type: 'pageView',
       };
@@ -70,7 +66,7 @@ function main(info) {
         if (utag.sender[tag]) {
           utag.sender[tag].send_old = utag.sender[tag].send;
           utag.sender[tag].send = function (a, b) {
-            call.tags[tag] = { data: b };
+            call.tags[tag] = b;
             utag.sender[tag].send_old.apply(this, arguments);
           }
         }
@@ -81,7 +77,7 @@ function main(info) {
       utag.track_old = utag.track;
       utag.track = function (a, b) {
         call.type = a.event || a;
-        call.tags.dataLayer = { data: b || a.data };
+        call.tags.dataLayer =  b || a.data;
         utag.track_old.apply(this, arguments);
         processCall();
       }
@@ -95,14 +91,13 @@ function main(info) {
           processCall();
         }
       }
-      
+
       function processCall() {
-        for (let tagId in call.tags) {
-          call.tags[tagId].undefKeys = [];
-          for (let key in call.tags[tagId].data) {
-            if (typeof call.tags[tagId].data[key] === 'undefined') call.tags[tagId].undefKeys.push(key);
-          }
-        }
+        Object.entries(call.tags).forEach(([tagId, tag]) => {
+          Object.entries(tag).forEach(([key, value]) => {
+            tag[key] = typeof value === 'undefined' ? null : value;
+          });
+        });
         eValCalls.push(call);
         localStorage.eValCalls = JSON.stringify(eValCalls);
         window.postMessage({ eVal: 'call', call: call });

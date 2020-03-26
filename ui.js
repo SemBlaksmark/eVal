@@ -67,15 +67,12 @@ function addCall(call) {
 
 function processCall(id, call) {
   call.id = id;
-  for (let tagId in call.tags) {
-    for (let key of call.tags[tagId].undefKeys) call.tags[tagId].data[key] = undefined;
-  }
   call.tags = Object.fromEntries(Object.entries(call.tags).map(processTags));
   call.events = processEvents(call.tags.dataLayer);
   return call;
 }
 function processTags([tagId, tag]) {
-  let keyPairs = Object.fromEntries(Object.entries(tag.data).map(processKeyPair));
+  let keyPairs = Object.fromEntries(Object.entries(tag).map(processKeyPair));
   let matched = {};
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
     let group = { ...groupDefinition };
@@ -111,15 +108,14 @@ function processTags([tagId, tag]) {
 }
 function processKeyPair([key, value]) {
   let status = [];
-  if (value === null) status = 'missing';
+  if (value === null) status.push('missing');
   else if (Array.isArray(value)) {
     status.push('array');
     if (value.length === 0) status.push('empty');
   }
   else {
     let type = typeof value;
-    if (type === 'undefined') status.push('missing');
-    else if (type === 'object') {
+    if (type === 'object') {
       status.push('object');
       if (Object.keys(value).length === 0) status.push('empty');
     } else {
