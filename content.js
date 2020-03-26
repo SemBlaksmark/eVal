@@ -35,6 +35,11 @@ function main(info) {
   function pageScript() {
     window.eValCalls = localStorage.eValCalls && JSON.parse(localStorage.eValCalls) || [];
     window.postMessage({ eVal: 'load', calls: eValCalls });
+    for (let call of eValCalls) {
+      for (let tagId in call.tags) {
+        for (let key of call.tags[tagId].undefKeys) call.tags[tagId].data[key] = undefined;
+      }
+    }
     window.addEventListener('message', e => {
       if (!e.data.eVal) return;
       switch (e.data.eVal) {
@@ -42,17 +47,21 @@ function main(info) {
           localStorage.removeItem('eValCalls');
           break;
       }
-    })
+    });
 
     var tealiumScript = document.querySelector('script[src*="utag.js"]');
     console.log('Tealium script found');
     tealiumScript.addEventListener('load', e => {
       let call = {
+        tags: {
+          udo: {
+            data: window.utag_data
+          },
+          dataLayer: {
+            data: window.utag.data
+          },
+        },
         type: 'pageView',
-        layers: {
-          udo: window.utag_data,
-          dataLayer: window.utag.data,
-        }
       };
 
       /* Override utag.loader.LOAD */
@@ -61,7 +70,7 @@ function main(info) {
         if (utag.sender[tag]) {
           utag.sender[tag].send_old = utag.sender[tag].send;
           utag.sender[tag].send = function (a, b) {
-            call.layers[tag] = b;
+            call.tags[tag] = { data: b };
             utag.sender[tag].send_old.apply(this, arguments);
           }
         }
@@ -72,7 +81,7 @@ function main(info) {
       utag.track_old = utag.track;
       utag.track = function (a, b) {
         call.type = a.event || a;
-        call.layers.dataLayer = b || a.data;
+        call.tags.dataLayer = {data : b || a.data };
         utag.track_old.apply(this, arguments);
         processCall();
       }
@@ -85,11 +94,17 @@ function main(info) {
       }
 
       function processCall() {
-        console.log('call');
+        console.log(call);
+        for (let tagId in call.tags) {
+          call.tags[tagId].undefKeys = [];
+          for (let key in call.tags[tagId].data) {
+            if (typeof call.tags[tagId].data[key] === 'undefined') call.tags[tagId].undefKeys.push(key);
+          }
+        }
         eValCalls.push(call);
         localStorage.eValCalls = JSON.stringify(eValCalls);
         window.postMessage({ eVal: 'call', call: call });
-        call = { layers: {} };
+        call = { tags: {} };
       }
     });
   }

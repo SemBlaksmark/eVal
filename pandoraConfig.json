@@ -27,7 +27,8 @@
             "language",
             "market",
             "http_code",
-            "user_device_type"
+            "user_device_type",
+            "currency"
           ]
         },
         "customer": {
@@ -65,8 +66,7 @@
             "product_giftset_id",
             "product_finding_method",
             "product_distribution_method",
-            "product_collection_store",
-            "product_gift_status"
+            "product_collection_store"
           ]
         },
         "order": {

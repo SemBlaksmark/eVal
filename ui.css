@@ -24,7 +24,7 @@ h2 {
     padding: 8px;
     border-right: 2px solid #182020;
 }
-#layers {
+#tags {
     height: 100%;
     min-height: 100vh;
     padding: 8px;
@@ -48,20 +48,20 @@ h2 {
 .call.selected {
     background: midnightblue;
 }
-.layersContainer {
+.tagSelector {
     display: none;
 }
-.layersContainer.selected {
+.tagSelector.selected {
     display: block;
 }
-.layer {
+.tag {
     user-select: none;
     padding: 3px;
 }
-.layer * {
+.tag * {
     pointer-events: none;
 }
-.layer.selected {
+.tag.selected {
     background-color: midnightblue;
 }
 .detail {
@@ -82,10 +82,12 @@ h2 {
     border: none;
 }
 .groupControl.nodata {
+    order: 1;
     border: none;
     color: darkslategray;
 }
 .groupControl.active {
+    order: initial;
     background: #203030;
 }
 .group {
@@ -104,12 +106,18 @@ h2 {
 .group div {
     margin: 1px 0;
 }
+.key {
+    padding-right: 4px;
+}
 .key.nokey {
-    text-decoration: line-through;
+    opacity: .4;
 }
 .key.empty {
+    border-right: 1px solid red;
+}
+.key.missing {
     color: red;
 }
-.array {
-    font-weight: bold;
+.key.array {
+    border-bottom: 1px dashed cornflowerblue;
 }

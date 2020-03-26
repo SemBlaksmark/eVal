@@ -51,7 +51,7 @@ function messageListener(m) {
 
 function DOMReady() {
   $('#calls').addEventListener('click', e => selectCall(e.target));
-  $('#layers').addEventListener('click', e => selectLayer(e.target));
+  $('#tags').addEventListener('click', e => selectTag(e.target));
 }
 
 function addCall(call) {
@@ -59,7 +59,7 @@ function addCall(call) {
   /*calls[id] =*/ processCall(id, call);
 
   createDetails(call);
-  createLayers(call);
+  createTags(call);
   createCall(call);
 
   selectCall($(`#calls [id="${id}"]`));
@@ -67,12 +67,15 @@ function addCall(call) {
 
 function processCall(id, call) {
   call.id = id;
-  call.layers = Object.fromEntries(Object.entries(call.layers).map(processLayer));
-  call.events = processEvents(call.layers.dataLayer);
+  for (let tagId in call.tags) {
+    for (let key of call.tags[tagId].undefKeys) call.tags[tagId].data[key] = undefined;
+  }
+  call.tags = Object.fromEntries(Object.entries(call.tags).map(processTags));
+  call.events = processEvents(call.tags.dataLayer);
   return call;
 }
-function processLayer([id, layer]) {
-  let keyPairs = Object.fromEntries(Object.entries(layer).map(processKeyPair));
+function processTags([tagId, tag]) {
+  let keyPairs = Object.fromEntries(Object.entries(tag.data).map(processKeyPair));
   let matched = {};
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
     let group = { ...groupDefinition };
@@ -104,7 +107,7 @@ function processLayer([id, layer]) {
   }));
   let unmatched = Object.entries(keyPairs).filter(([key, value]) => !matched[key]);
   if (unmatched.length > 0) processed.unknown = { hidden: false, keys: Object.fromEntries(unmatched), hasData: true };
-  return [id, processed];
+  return [tagId, processed];
 }
 function processKeyPair([key, value]) {
   let status = [];
@@ -157,36 +160,36 @@ function createCall(call) {
   });
   $('#calls').append(el);
 }
-function createLayers(call) {
-  let container = makeEl('div', null, ['layersContainer']);
+function createTags(call) {
+  let container = makeEl('div', null, ['tagSelector']);
   container.dataset.callId = call.id;
-  Object.keys(call.layers).forEach(layerId => {
-    let el = makeEl('div', null, ['layer']);
-    el.dataset.layerId = layerId;
+  Object.keys(call.tags).forEach(tagID => {
+    let el = makeEl('div', null, ['tag']);
+    el.dataset.tagId = tagID;
     el.dataset.callId = call.id;
 
-    el.append(makeEl('div', null, null, layerId));
+    el.append(makeEl('div', null, null, tagID));
     //el.append(makeEl('div', null, null, 'name '));
     container.append(el);
   });
-  $('#layers').append(container);
+  $('#tags').append(container);
 }
 function createDetails(call) {
   let fragment = document.createDocumentFragment();
-  Object.entries(call.layers).forEach(([layerId, layer]) => {
+  Object.entries(call.tags).forEach(([tagId, tag]) => {
     let el = makeEl('div', null, ['detail']);
-    el.dataset.layerId = layerId;
+    el.dataset.tagId = tagId;
     el.dataset.callId = call.id;
 
     let head = makeEl('div', null, ['head']);
     head.addEventListener('click', e => toggleGroup(e.target));
     let body = makeEl('div', null, ['body']);
-    Object.entries(layer).forEach(([groupName, group]) => {
+    Object.entries(tag).forEach(([groupName, group]) => {
       let groupControl = makeEl('h2', null, ['groupControl'], groupName);
       if (!group.hidden) groupControl.classList.add('active');
       if (!group.hasData) groupControl.classList.add('nodata');
       groupControl.dataset.callId = call.id;
-      groupControl.dataset.layerId = layerId;
+      groupControl.dataset.tagId = tagId;
       groupControl.dataset.groupName = groupName;
       head.append(groupControl);
       let content = makeEl('div', null, ['group', groupName]);
@@ -216,20 +219,20 @@ function selectCall(el) {
   if (!el.matches('.call') || el.matches('.selected')) return;
   el.parentElement.querySelector('.selected')?.classList.toggle('selected');
   el.classList.toggle('selected');
-  $('#layers').querySelector('.layersContainer.selected')?.classList.toggle('selected');
-  let container = $(`#layers .layersContainer[data-call-id="${el.id}"`);
+  $('#tags').querySelector('.tagSelector.selected')?.classList.toggle('selected');
+  let container = $(`#tags .tagSelector[data-call-id="${el.id}"`);
   if (container) {
     container.classList.toggle('selected');
-    selectLayer(container.querySelector('.layer.selected') || container.querySelector('.layer[data-layer-id="dataLayer"]'));
+    selectTag(container.querySelector('.tag.selected') || container.querySelector('.tag[data-tag-id="dataLayer"]'));
   }
 }
 
-function selectLayer(el) {
-  if (!el.matches('.layer')) return;
+function selectTag(el) {
+  if (!el.matches('.tag')) return;
   el.parentElement.querySelector('.selected')?.classList.toggle('selected');
   el.classList.add('selected');
   $$('.detail').forEach(detail => {
-    if (detail.dataset.callId === el.dataset.callId && detail.dataset.layerId === el.dataset.layerId) detail.classList.add('selected');
+    if (detail.dataset.callId === el.dataset.callId && detail.dataset.tagId === el.dataset.tagId) detail.classList.add('selected');
     else detail.classList.remove('selected');
   });
 }
@@ -237,5 +240,5 @@ function selectLayer(el) {
 function toggleGroup(el) {
   if (!el.classList.contains('groupControl')) return;
   el.classList.toggle('active');
-  $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-layer-id="${el.dataset.layerId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
+  $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-tag-id="${el.dataset.tagId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
 }
