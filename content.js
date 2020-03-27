@@ -35,11 +35,6 @@ function main(info) {
   function pageScript() {
     window.eValCalls = localStorage.eValCalls && JSON.parse(localStorage.eValCalls) || [];
     window.postMessage({ eVal: 'load', calls: eValCalls });
-    for (let call of eValCalls) {
-      for (let tagId in call.tags) {
-        for (let key of call.tags[tagId].undefKeys) call.tags[tagId].data[key] = undefined;
-      }
-    }
     window.addEventListener('message', e => {
       if (!e.data.eVal) return;
       switch (e.data.eVal) {
