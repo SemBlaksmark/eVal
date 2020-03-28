@@ -35,10 +35,15 @@ function main(info) {
 
   function pageScript() {
     window.eValCalls = localStorage.eValCalls && JSON.parse(localStorage.eValCalls) || [];
+    let callIndex = eValCalls.reduce((max, call) => Math.max(max, call.id), 0);
     window.postMessage({ eVal: 'load', calls: eValCalls });
     window.addEventListener('message', e => {
       if (!e.data.eVal) return;
       switch (e.data.eVal) {
+        case 'deleteCall':
+          eValCalls = eValCalls.filter(call => call.id != e.data.id);
+          localStorage.eValCalls = JSON.stringify(eValCalls);
+          break;
         case 'clearStored':
           localStorage.removeItem('eValCalls');
           break;
@@ -89,6 +94,7 @@ function main(info) {
       }
 
       function processCall() {
+        call.id = ++callIndex;
         Object.entries(call.tags).forEach(([tagId, tag]) => {
           Object.entries(tag).forEach(([key, value]) => {
             tag[key] = typeof value === 'undefined' ? null : value;
@@ -105,6 +111,9 @@ function main(info) {
   function addBackgroundScriptCommunication() {
     chrome.runtime.onMessage.addListener((m, sender, sendResponse) => {
       switch (m.command) {
+        case 'deleteCall':
+          window.postMessage({ eVal: 'deleteCall', id: m.id });
+          break;
         case 'clearStored':
           window.postMessage({ eVal: 'clearStored' });
           break;

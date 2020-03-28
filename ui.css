@@ -2,6 +2,7 @@
     --bg-color: #101818;
     --primary-color: cornflowerblue;
     --secondary-color: seagreen;
+    --highlight-color: midnightblue;
 }
 html {
     box-sizing: border-box;
@@ -78,7 +79,7 @@ h2 {
 }
 .call.selected {
     outline: none;
-    background: midnightblue;
+    background: var(--highlight-color);
 }
 .tagSelector {
     display: none;
@@ -94,7 +95,7 @@ h2 {
     pointer-events: none;
 }
 .tag.selected {
-    background-color: midnightblue;
+    background-color: var(--highlight-color);
 }
 .detail {
     display: none;

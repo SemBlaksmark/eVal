@@ -31,6 +31,10 @@ function commandListener(m, sender) {
       session = sessions.find(session => session.pageTab === sender.tab.id);
       chrome.tabs.sendMessage(session.validatorTab, { command: 'addCall', call: m.call });
       break;
+    case 'deleteCall':
+      session = sessions.find(session => session.validatorTab === sender.tab.id);
+      chrome.tabs.sendMessage(session.pageTab, { command: 'deleteCall', id: m.id });
+      break;
     case 'clearStored':
       session = sessions.find(session => session.validatorTab === sender.tab.id);
       chrome.tabs.sendMessage(session.pageTab, { command: 'clearStored' });

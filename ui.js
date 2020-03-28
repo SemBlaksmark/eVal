@@ -2,7 +2,6 @@ const info = Object.fromEntries(location.search.substr(1).split('&').map(entry =
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-let callIndex = 0;
 //let calls = {};
 let config;
 
@@ -50,23 +49,23 @@ function messageListener(m) {
 }
 
 function DOMReady() {
-  $('#calls').addEventListener('click', e => selectCall(e.target));
+  let calls = $('#calls');
+  calls.addEventListener('click', e => selectCall(e.target));
+  calls.addEventListener('keyup', e => { if(e.keyCode === 46) deleteCall(e.target) });
   $('#tags').addEventListener('click', e => selectTag(e.target));
 }
 
 function addCall(call) {
-  let id = callIndex++;
-  /*calls[id] =*/ processCall(id, call);
+  /*calls[id] =*/ processCall(call);
 
   createDetails(call);
   createTags(call);
   createCall(call);
 
-  selectCall($(`#calls [id="${id}"]`));
+  selectCall($(`.call[id="${call.id}"]`));
 }
 
-function processCall(id, call) {
-  call.id = id;
+function processCall(call) {
   call.pageName = call.tags.dataLayer[config.pageNameKey];
   call.tags = Object.fromEntries(Object.entries(call.tags).map(processTags));
   call.events = processEvents(call.tags.dataLayer);
@@ -221,6 +220,12 @@ function makeIcon(name) {
   icon.classList.add(name);
   icon.innerHTML = `<use href="icons.svg#${name}"></use>`
   return icon;
+}
+
+function deleteCall(el) {
+  let id = el.id;
+  $$(`.call[id="${id}"], .tagSelector[data-call-id="${id}"], .detail[data-call-id="${id}"]`).forEach(part => part.remove());
+  chrome.runtime.sendMessage({command: 'deleteCall', id: id});
 }
 
 function selectCall(el) {
