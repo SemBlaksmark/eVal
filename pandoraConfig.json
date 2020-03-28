@@ -82,9 +82,16 @@
             "order_type",
             "order_tax_value",
             "order_total_discount",
-            "product_price_nodiscount_notax",
-            "product_price_notax",
-            "gift_card_message"
+            "product_final_price_ex_tax",
+            "product_final_price_inc_tax"
+          ]
+        },
+        "checkout": {
+          "hidden": false,
+          "keys": [
+            "step_name",
+            "step_no",
+            "checkout_structure"
           ]
         },
         "cart_product": {
@@ -115,6 +122,12 @@
           "hidden": true,
           "keys": [
             "/^cp\\./"
+          ]
+        },
+        "query": {
+          "hidden": true,
+          "keys": [
+            "/^qp\\./"
           ]
         },
         "tealium": {

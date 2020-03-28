@@ -12,6 +12,7 @@ function observerCallback(mutationRecords) {
           profile: match[2],
           host: location.host
         };
+        observer.disconnect();
         break loop1;
       }
     }
