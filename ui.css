@@ -1,3 +1,8 @@
+:root {
+    --bg-color: #101818;
+    --primary-color: cornflowerblue;
+    --secondary-color: seagreen;
+}
 html {
     box-sizing: border-box;
 }
@@ -5,18 +10,26 @@ html {
     box-sizing: inherit;
 }
 body {
-    background: #101818;
-    color: cornflowerblue;
+    background: var(--bg-color);
+    color: var(--primary-color);
     margin: 0px;
     display: grid;
     grid-template-columns: min-content min-content auto;
     white-space: nowrap;
 }
+button {
+    font: inherit;
+    color: inherit;
+    border: none;
+    background: none;
+    display: block;
+}
+button:focus {
+    outline: none;
+}
 h2 {
-    font-size: 1.3em;
-    padding-bottom: 2px;
-    margin: 0 0 4px 0;
-    border-bottom: 1px solid seagreen;
+    font-size: 1.1em;
+    margin: 0;
 }
 #calls {
     height: 100%;
@@ -32,18 +45,33 @@ h2 {
 }
 /*#inspect {
 }*/
+.icon {
+    height: 1em;
+    width: 1em;
+}
 .call {
+    text-align: left;
+    width: 100%;
     user-select: none;
-    padding: 0 8px 1.3rem 8px;
+    padding: 8px;
 }
 .call * {
     pointer-events: none;
 }
-.call h2 {
-    text-transform: uppercase;
+.call .header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--secondary-color);
 }
-.call div {
-    margin-left: 4px;
+.call .header .icon {
+    font-size: 1.1em;
+    fill:  var(--primary-color);
+    margin-right: 0.5em;
+}
+.call .header h2::first-letter {
+    text-transform: uppercase;
 }
 .call.selected {
     background: midnightblue;
@@ -76,7 +104,7 @@ h2 {
     user-select: none;
 }
 .groupControl {
-    color: seagreen;
+    color: var(--secondary-color);
     text-transform: capitalize;
     padding: 0.6rem 8px 0.6rem 8px;
     border: none;
@@ -102,6 +130,7 @@ h2 {
 .group h2 {
     text-transform: capitalize;
     grid-column: 1 / span 2;
+    border-bottom: 1px solid var(--secondary-color);
 }
 .group div {
     margin: 1px 0;
@@ -119,5 +148,5 @@ h2 {
     color: red;
 }
 .key.array {
-    border-bottom: 1px dashed cornflowerblue;
+    border-bottom: 1px dashed var(--primary-color);
 }

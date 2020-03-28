@@ -6,6 +6,7 @@
         "isGroup": true,
         "key": "event"
       },
+      "pageNameKey": "page_name",
       "keyGroups": {
         "event": {
           "hidden": false,

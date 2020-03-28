@@ -67,6 +67,7 @@ function addCall(call) {
 
 function processCall(id, call) {
   call.id = id;
+  call.pageName = call.tags.dataLayer[config.pageNameKey];
   call.tags = Object.fromEntries(Object.entries(call.tags).map(processTags));
   call.events = processEvents(call.tags.dataLayer);
   return call;
@@ -149,8 +150,11 @@ function processEvents(dataLayer) {
 }
 
 function createCall(call) {
-  let el = makeEl('div', call.id, ['call', call.type]);
-  el.append(makeEl('h2', null, null, call.type));
+  let el = makeEl('button', call.id, ['call', call.type]);
+  let header = makeEl('div', null, ['header']);
+  header.append(makeIcon(call.type));
+  header.append(makeEl('h2', null, null, call.pageName || `<${call.type}>`));
+  el.append(header);
   call.events.forEach(text => {
     el.append(makeEl('div', null, null, text));
   });
@@ -209,6 +213,14 @@ function makeEl(type, id, classes, text) {
   if (classes) classes.forEach(c => el.classList.add(c));
   if (text !== null && text !== undefined) el.append(document.createTextNode(text));
   return el;
+}
+function makeIcon(name) {
+  const NS = 'http://www.w3.org/2000/svg'
+  let icon = document.createElementNS(NS, 'svg');
+  icon.classList.add('icon');
+  icon.classList.add(name);
+  icon.innerHTML = `<use href="icons.svg#${name}"></use>`
+  return icon;
 }
 
 function selectCall(el) {

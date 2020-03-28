@@ -53,7 +53,7 @@ function main(info) {
           udo: window.utag_data,
           dataLayer: window.utag.data
         },
-        type: 'pageView',
+        type: 'page',
       };
 
       /* Override utag.loader.LOAD */
