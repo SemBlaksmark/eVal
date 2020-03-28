@@ -1,7 +1,7 @@
 let sessions = [];
 
 /* Listen for event */
-chrome.tabs.onRemoved.addListener(tabId => sessions = sessions.filter(session => session.pageTab !== tabId && session.validatorTab !== tabId));
+chrome.tabs.onRemoved.addListener(onTabClose);
 chrome.runtime.onMessage.addListener(commandListener);
 
 function commandListener(m, sender) {
@@ -40,4 +40,15 @@ function commandListener(m, sender) {
       chrome.tabs.sendMessage(session.pageTab, { command: 'clearStored' });
       break;
   }
+}
+
+function onTabClose(tabId) {
+  sessions = sessions.filter(session => {
+    if (session.pageTab === tabId) {
+      chrome.tabs.remove(session.validatorTab);
+      return false;
+    }
+    else if (session.validatorTab === tabId) return false;
+    return true;
+  });
 }
