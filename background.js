@@ -1,16 +1,16 @@
 let sessions = [];
 
 /* Listen for event */
-chrome.tabs.onRemoved.addListener(onTabClose);
 chrome.runtime.onMessage.addListener(commandListener);
-
+chrome.tabs.onRemoved.addListener(onTabClose);
+chrome.tabs.onUpdated.addListener(onTabUpdated);
 function commandListener(m, sender) {
   let session;
   switch (m.command) {
     case 'init':
       session = sessions.find(session => session.pageTab === sender.tab.id);
-      if (!session) session = { pageTab: sender.tab.id };
-      if (!session.validatorTab) {
+      if (!session) {
+        session = { pageTab: sender.tab.id };
         chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => {
           session.validatorTab = tab.id;
           session.initialized = false;
@@ -29,7 +29,7 @@ function commandListener(m, sender) {
       break;
     case 'call':
       session = sessions.find(session => session.pageTab === sender.tab.id);
-      chrome.tabs.sendMessage(session.validatorTab, { command: 'addCall', call: m.call });
+      if (session) chrome.tabs.sendMessage(session.validatorTab, { command: 'addCall', call: m.call });
       break;
     case 'deleteCall':
       session = sessions.find(session => session.validatorTab === sender.tab.id);
@@ -51,4 +51,8 @@ function onTabClose(tabId) {
     else if (session.validatorTab === tabId) return false;
     return true;
   });
+}
+
+function onTabUpdated(tabId, changeInfo) {
+  sessions = sessions.filter(session => !(session.initialized && session.validatorTab === tabId && changeInfo.url));
 }
