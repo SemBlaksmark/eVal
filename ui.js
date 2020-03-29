@@ -35,7 +35,7 @@ async function getConfig(account, profile) {
   return {};
 }
 async function storageFetch(key) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     chrome.storage.local.get(key, stored => resolve(stored[key]));
   });
 }
@@ -72,29 +72,28 @@ function processCall(call) {
   return call;
 }
 function processTags([tagId, tag]) {
-  let keyPairs = Object.fromEntries(Object.entries(tag).map(processKeyPair));
   let matched = {};
   let processed = Object.fromEntries(Object.entries(config.keyGroups).map(([groupName, groupDefinition]) => {
     let group = { ...groupDefinition };
     group.keys = {};
-    for (let key of groupDefinition.keys) {
-      if (key instanceof RegExp) {
-        Object.entries(keyPairs).forEach(([pairKey, pairValue]) => {
-          if (key.test(pairKey)) {
-            matched[pairKey] = true;
-            group.keys[pairKey] = pairValue;
+    for (let groupKey of groupDefinition.keys) {
+      if (groupKey instanceof RegExp) {
+        Object.entries(tag).forEach(([key, value]) => {
+          if (groupKey.test(key)) {
+            matched[key] = true;
+            group.keys[key] = value;
           }
         });
       } else {
-        if (keyPairs.hasOwnProperty(key)) {
-          group.keys[key] = keyPairs[key];
-          matched[key] = true;
+        if (tag.hasOwnProperty(groupKey)) {
+          group.keys[groupKey] = tag[groupKey];
+          matched[groupKey] = true;
         } else {
-          group.keys[key] = { value: undefined, status: ['nokey'] };
+          group.keys[groupKey] = new NoKey('nokey');
         }
       }
     };
-    if (Object.values(group.keys).some(value => !~value.status.indexOf('nokey'))) {
+    if (Object.values(group.keys).some(value => !(value instanceof NoKey))) {
       group.hasData = true;
     } else {
       group.hasData = false;
@@ -102,31 +101,19 @@ function processTags([tagId, tag]) {
     }
     return [groupName, group];
   }));
-  let unmatched = Object.entries(keyPairs).filter(([key, value]) => !matched[key]);
+  let unmatched = Object.entries(tag).filter(([key, value]) => !matched[key]);
   if (unmatched.length > 0) processed.unknown = { hidden: false, keys: Object.fromEntries(unmatched), hasData: true };
   return [tagId, processed];
-}
-function processKeyPair([key, value]) {
-  let status = [];
-  if (value === null) {
-    status.push('missing');
-  } else {
-    let type = typeof value;
-    if (value.length === 0 || (type === 'object' && Object.keys(value).length === 0)) status.push('empty');
-    if (Array.isArray(value)) status.push('array');
-    else status.push(type);
-  }
-  return [key, { value: value, status: status }]
 }
 function processEvents(dataLayer) {
   if (config.events.isGroup) {
     let eventGroup = dataLayer[config.events.key].keys;
-    return Object.values(eventGroup).reduce((list, eventKey) => {
-      if (eventKey.value) {
-        if (Array.isArray(eventKey.value)) {
-          list.push(...eventKey.value);
+    return Object.values(eventGroup).reduce((list, events) => {
+      if (events && !(events instanceof NoKey)) {
+        if (Array.isArray(events)) {
+          list.push(...events);
         } else if (/string|number|bigint/.test(typeof eventKey.value)) {
-          list.push(eventKey.value);
+          list.push(events);
         }
       }
       return list;
@@ -134,8 +121,8 @@ function processEvents(dataLayer) {
   }
   else {
     for (let group in dataLayer) {
-      let key = dataLayer[group][config.events.key];
-      if (key.value) return Array.isArray(key.value) ? key.value : [key.value];
+      let events = dataLayer[group][config.events.key];
+      if (events && !(events instanceof NoKey)) return Array.isArray(events.value) ? events.value : [events.value];
     }
   }
   return [];
@@ -187,9 +174,20 @@ function createDetails(call) {
       let content = makeEl('div', null, ['group', groupName]);
       if (group.hidden) content.classList.add('hidden');
       content.append(makeEl('h2', null, null, groupName));
-      Object.entries(group.keys).forEach(([key, valueObj]) => {
-        content.append(makeEl('div', null, ['key', ...valueObj.status], key));
-        content.append(makeEl('div', null, ['value', ...valueObj.status], JSON.stringify(valueObj.value)));
+      Object.entries(group.keys).forEach(([key, value]) => {
+        let status = getKeyStatus(value);
+        content.append(makeEl('div', null, ['key', ...status], key));
+        let valueEl = makeEl('div', null, ['value', ...status]);
+        if (!~status.indexOf('nokey') && !~status.indexOf('missing')) {
+          if (~status.indexOf('empty')) {
+            valueEl.append(document.createTextNode(JSON.stringify(value)));
+          } else if (~status.indexOf('array')) {
+            valueEl.append(document.createTextNode('ARR: ' + value));
+          } else {
+            valueEl.append(document.createTextNode(value));
+          }
+        }
+        content.append(valueEl);
       });
       body.append(content);
     });
@@ -213,6 +211,22 @@ function makeIcon(name) {
   icon.classList.add(name);
   icon.innerHTML = `<use href="icons.svg#${name}"></use>`
   return icon;
+}
+function getKeyStatus(value, isNested) {
+  let status = [];
+  if (value instanceof NoKey) {
+    status.push('nokey');
+  } else if (value === null) {
+    status.push('missing');
+  } else {
+    let type = typeof value;
+    if (value.length === 0 || (type === 'object' && Object.keys(value).length === 0)) status.push('empty');
+    if (Array.isArray(value)) {
+      status.push('array');
+    }
+    else status.push(type);
+  }
+  return status;
 }
 
 function deleteCall(el) {
@@ -247,4 +261,10 @@ function toggleGroup(el) {
   if (!el.classList.contains('groupControl')) return;
   el.classList.toggle('active');
   $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-tag-id="${el.dataset.tagId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
+}
+
+class NoKey {
+  constructor(status) {
+    this.status = status;
+  }
 }
