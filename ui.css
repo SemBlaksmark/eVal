@@ -59,6 +59,9 @@ h2 {
 .call:focus {
     outline: 1px solid var(--secondary-color);
 }
+.call:active {
+    outline: none;
+}
 .call * {
     pointer-events: none;
 }
