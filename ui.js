@@ -51,7 +51,7 @@ function messageListener(m) {
 function DOMReady() {
   let calls = $('#calls');
   calls.addEventListener('click', e => selectCall(e.target));
-  calls.addEventListener('keyup', e => { if(e.keyCode === 46) deleteCall(e.target) });
+  calls.addEventListener('keyup', e => { if (e.keyCode === 46) deleteCall(e.target) });
   $('#tags').addEventListener('click', e => selectTag(e.target));
 }
 
@@ -108,20 +108,13 @@ function processTags([tagId, tag]) {
 }
 function processKeyPair([key, value]) {
   let status = [];
-  if (value === null) status.push('missing');
-  else if (Array.isArray(value)) {
-    status.push('array');
-    if (value.length === 0) status.push('empty');
-  }
-  else {
+  if (value === null) {
+    status.push('missing');
+  } else {
     let type = typeof value;
-    if (type === 'object') {
-      status.push('object');
-      if (Object.keys(value).length === 0) status.push('empty');
-    } else {
-      status.push(type);
-      if (type === 'string' && value.length === 0) status.push('empty');
-    }
+    if (value.length === 0 || (type === 'object' && Object.keys(value).length === 0)) status.push('empty');
+    if (Array.isArray(value)) status.push('array');
+    else status.push(type);
   }
   return [key, { value: value, status: status }]
 }
@@ -214,7 +207,7 @@ function makeEl(type, id, classes, text) {
   return el;
 }
 function makeIcon(name) {
-  const NS = 'http://www.w3.org/2000/svg'
+  const NS = 'http://www.w3.org/2000/svg';
   let icon = document.createElementNS(NS, 'svg');
   icon.classList.add('icon');
   icon.classList.add(name);
@@ -225,7 +218,7 @@ function makeIcon(name) {
 function deleteCall(el) {
   let id = el.id;
   $$(`.call[id="${id}"], .tagSelector[data-call-id="${id}"], .detail[data-call-id="${id}"]`).forEach(part => part.remove());
-  chrome.runtime.sendMessage({command: 'deleteCall', id: id});
+  chrome.runtime.sendMessage({ command: 'deleteCall', id: id });
 }
 
 function selectCall(el) {
