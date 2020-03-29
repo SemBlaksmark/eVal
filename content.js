@@ -20,11 +20,11 @@ function observerCallback(mutationRecords) {
   if (info) main(info);
 }
 
-function main(info) {
+async function main(info) {
+  await new Promise((resolve, reject) => chrome.runtime.sendMessage({ command: 'init', ...info }, response => resolve(response)));
   embedPageScript();
   addBackgroundScriptCommunication();
   addEmbeddedScriptCommunication();
-  chrome.runtime.sendMessage({ command: 'init', ...info });
 
   function embedPageScript() {
     let embed = document.createElement('script');

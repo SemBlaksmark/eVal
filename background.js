@@ -4,27 +4,27 @@ let sessions = [];
 chrome.runtime.onMessage.addListener(commandListener);
 chrome.tabs.onRemoved.addListener(onTabClose);
 chrome.tabs.onUpdated.addListener(onTabUpdated);
-function commandListener(m, sender) {
+async function commandListener(m, sender, sendResponse) {
   let session;
   switch (m.command) {
     case 'init':
       session = sessions.find(session => session.pageTab === sender.tab.id);
       if (!session) {
         session = { pageTab: sender.tab.id };
-        chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => {
-          session.validatorTab = tab.id;
-          session.initialized = false;
-          sessions.push(session);
-        });
+        let tab = await new Promise((resolve, reject) => chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => resolve(tab)));
+        session.validatorTab = tab.id;
+        session.loaded = false;
+        sessions.push(session);
       }
+      sendResponse(true);
       break;
     case 'load':
       session = sessions.find(session => session.pageTab === sender.tab.id);
-      if (!session.initialized) {
+      if (!session.loaded) {
         m.calls.forEach(call => {
           chrome.tabs.sendMessage(session.validatorTab, { command: 'addCall', call: call });
         });
-        session.initialized = true;
+        session.loaded = true;
       }
       break;
     case 'call':
