@@ -11,7 +11,7 @@ async function commandListener(m, sender, sendResponse) {
       session = sessions.find(session => session.pageTab === sender.tab.id);
       if (!session) {
         session = { pageTab: sender.tab.id };
-        let tab = await new Promise((resolve, reject) => chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => resolve(tab)));
+        let tab = await new Promise(resolve => chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => resolve(tab)));
         session.validatorTab = tab.id;
         session.loaded = false;
         sessions.push(session);

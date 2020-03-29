@@ -21,7 +21,7 @@ function observerCallback(mutationRecords) {
 }
 
 async function main(info) {
-  await new Promise((resolve, reject) => chrome.runtime.sendMessage({ command: 'init', ...info }, response => resolve(response)));
+  await new Promise(resolve => chrome.runtime.sendMessage({ command: 'init', ...info }, response => resolve(response)));
   embedPageScript();
   addBackgroundScriptCommunication();
   addEmbeddedScriptCommunication();
@@ -109,7 +109,7 @@ async function main(info) {
   }
 
   function addBackgroundScriptCommunication() {
-    chrome.runtime.onMessage.addListener((m, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener(m => {
       switch (m.command) {
         case 'deleteCall':
           window.postMessage({ eVal: 'deleteCall', id: m.id });
