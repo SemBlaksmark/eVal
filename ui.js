@@ -112,7 +112,7 @@ function processEvents(dataLayer) {
       if (events && !(events instanceof NoKey)) {
         if (Array.isArray(events)) {
           list.push(...events);
-        } else if (/string|number|bigint/.test(typeof eventKey.value)) {
+        } else if (/string|number|bigint/.test(typeof events)) {
           list.push(events);
         }
       }
@@ -179,10 +179,18 @@ function createDetails(call) {
         content.append(makeEl('div', null, ['key', ...status], key));
         let valueEl = makeEl('div', null, ['value', ...status]);
         if (!~status.indexOf('nokey') && !~status.indexOf('missing')) {
-          if (~status.indexOf('empty')) {
+          if (~status.indexOf('empty') || ~status.indexOf('object')) {
             valueEl.append(document.createTextNode(JSON.stringify(value)));
           } else if (~status.indexOf('array')) {
-            valueEl.append(document.createTextNode('ARR: ' + value));
+            valueEl.append(makeEl('div', null, ['array-size', 'value', ...status], `[${value.length}]`));
+            value.forEach(entry => {
+              let entryStatus = getKeyStatus(entry);
+              if (~entryStatus.indexOf('empty') || ~entryStatus.indexOf('object')) {
+                valueEl.append(makeEl('div', null, ['array-item', 'value', ...entryStatus], JSON.stringify(entry)));
+              } else {
+                valueEl.append(makeEl('div', null, ['array-item', 'value', ...entryStatus], entry));
+              }
+            });
           } else {
             valueEl.append(document.createTextNode(value));
           }

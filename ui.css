@@ -3,6 +3,12 @@
     --primary-color: cornflowerblue;
     --secondary-color: seagreen;
     --highlight-color: midnightblue;
+    --separator-color: blue;
+
+    --status-number: white;
+    --status-boolean: blue;
+    --status-object: orange;
+    --status-empty: dimgray;
 }
 html {
     box-sizing: border-box;
@@ -150,11 +156,31 @@ h2 {
     opacity: .4;
 }
 .key.empty {
-    border-right: 1px solid red;
+    color: var(--status-empty);
 }
 .key.missing {
     color: red;
 }
-.key.array {
+.key.array:not(.empty) {
     border-bottom: 1px dashed var(--primary-color);
+}
+.value.array {
+    display: flex;
+}
+.value.object {
+    color: var(--status-object);
+}
+.value.empty {
+    color: var(--status-empty);
+}
+.value.number, .value.bigInt {
+    color: var(--status-number);
+}
+.value.boolean {
+    color: var(--status-boolean);
+}
+.value.array div:not(:first-child) {
+    margin-left: .25em;
+    padding-left: .25em;
+    border-left: 1px solid var(--separator-color);
 }
