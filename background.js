@@ -4,19 +4,20 @@ let sessions = [];
 chrome.runtime.onMessage.addListener(commandListener);
 chrome.tabs.onRemoved.addListener(onTabClose);
 chrome.tabs.onUpdated.addListener(onTabUpdated);
-async function commandListener(m, sender, sendResponse) {
+function commandListener(m, sender, sendResponse) {
   let session;
   switch (m.command) {
     case 'init':
       session = sessions.find(session => session.pageTab === sender.tab.id);
       if (!session) {
         session = { pageTab: sender.tab.id };
-        let tab = await new Promise(resolve => chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => resolve(tab)));
-        session.validatorTab = tab.id;
-        session.loaded = false;
-        sessions.push(session);
+        chrome.tabs.create({ url: `ui.html?host=${m.host}&account=${m.account}&profile=${m.profile}`, index: sender.tab.index + 1, active: false }, tab => {
+          session.validatorTab = tab.id;
+          session.loaded = false;
+          sessions.push(session);
+          sendResponse(true);
+        });
       }
-      sendResponse(true);
       break;
     case 'load':
       session = sessions.find(session => session.pageTab === sender.tab.id);
@@ -40,6 +41,7 @@ async function commandListener(m, sender, sendResponse) {
       chrome.tabs.sendMessage(session.pageTab, { command: 'clearStored' });
       break;
   }
+  return true;
 }
 
 function onTabClose(tabId) {
