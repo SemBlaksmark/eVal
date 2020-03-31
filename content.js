@@ -17,11 +17,10 @@ function observerCallback(mutationRecords) {
       }
     }
   }
-  if (info) main(info);
+  if (info) chrome.runtime.sendMessage({ command: 'init', ...info }, response => main());
 }
 
-async function main(info) {
-  await new Promise(resolve => chrome.runtime.sendMessage({ command: 'init', ...info }, response => resolve(response)));
+function main() {
   embedPageScript();
   addBackgroundScriptCommunication();
   addEmbeddedScriptCommunication();
