@@ -50,7 +50,7 @@ function main() {
       }
     });
 
-    if (window?.utag) tealiumOverride();
+    if (window.utag) tealiumOverride();
     else {
       let tealiumScript = document.querySelector('script[src*="utag.js"]');
       tealiumScript.addEventListener('load', tealiumOverride);
