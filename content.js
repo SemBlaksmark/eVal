@@ -36,6 +36,7 @@ function main() {
     window.eValCalls = localStorage.eValCalls && JSON.parse(localStorage.eValCalls) || [];
     let callIndex = eValCalls.reduce((max, call) => Math.max(max, call.id), 0);
     window.postMessage({ eVal: 'load', calls: eValCalls });
+
     window.addEventListener('message', e => {
       if (!e.data.eVal) return;
       switch (e.data.eVal) {
@@ -49,8 +50,11 @@ function main() {
       }
     });
 
-    var tealiumScript = document.querySelector('script[src*="utag.js"]');
-    tealiumScript.addEventListener('load', tealiumOverride);
+    if (window?.utag) tealiumOverride();
+    else {
+      let tealiumScript = document.querySelector('script[src*="utag.js"]');
+      tealiumScript.addEventListener('load', tealiumOverride);
+    }
     function tealiumOverride() {
       let call = {
         tags: {
