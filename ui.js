@@ -245,7 +245,7 @@ function getKeyStatus(value, isNested) {
 function deleteCall(el) {
   let id = el.id;
   $$(`.call[id="${id}"], .tagSelector[data-call-id="${id}"], .detail[data-call-id="${id}"]`).forEach(part => part.remove());
-  chrome.runtime.sendMessage({ command: 'deleteCall', id: id });
+  chrome.tabs.sendMessage(pageTab.id, { command: 'deleteCall', id: id });
 }
 
 function selectCall(el) {
