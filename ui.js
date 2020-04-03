@@ -2,21 +2,19 @@ const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
 let pageTab;
-let port;
 let config;
 
 //let calls = {};
 
 (async () => {
   pageTab = await new Promise(resolve => chrome.tabs.query({ active: true, currentWindow: true }, tabs => resolve(tabs[0])));
+  chrome.tabs.getCurrent(tab => chrome.tabs.update(tab.id, {active: true}));
   try {
     config = await new Promise((resolve, reject) => chrome.tabs.sendMessage(pageTab.id, { command: 'init' }, response => {
       if (response) getConfig(response).then(found => resolve(found)).catch(error => reject(error));
       else reject('No response');
     }));
-  } catch (e) {
-    chrome.tabs.getCurrent(tab => chrome.tabs.remove(tab.id));
-  }
+  } catch (e) {}
   chrome.runtime.onMessage.addListener(messageListener);
   chrome.tabs.sendMessage(pageTab.id, {command: 'load'});
   document.title = `eVal ${pageTab.url.match(/\/\/(.+?)\//)?.[1]}`;

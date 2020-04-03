@@ -27,7 +27,7 @@ function main() {
   }
 
   function pageScript() {
-    window.eValCalls = localStorage.eValCalls && JSON.parse(localStorage.eValCalls) || [];
+    window.eValCalls = sessionStorage.eValCalls && JSON.parse(sessionStorage.eValCalls) || [];
     let callIndex = eValCalls.reduce((max, call) => Math.max(max, call.id), 0);
 
     window.addEventListener('message', e => {
@@ -38,10 +38,10 @@ function main() {
           break;
         case 'deleteCall':
           eValCalls = eValCalls.filter(call => call.id != e.data.id);
-          localStorage.eValCalls = JSON.stringify(eValCalls);
+          sessionStorage.eValCalls = JSON.stringify(eValCalls);
           break;
         case 'clearStored':
-          localStorage.removeItem('eValCalls');
+          sessionStorage.removeItem('eValCalls');
           break;
       }
     });
@@ -100,7 +100,7 @@ function main() {
           });
         });
         eValCalls.push(call);
-        localStorage.eValCalls = JSON.stringify(eValCalls);
+        sessionStorage.eValCalls = JSON.stringify(eValCalls);
         window.postMessage({ eVal: 'call', call: call });
         call = { tags: {} };
       }
@@ -109,6 +109,9 @@ function main() {
 
   function uiListener(m, sender, sendResponse) {
     switch (m.command) {
+      case 'tealium':
+        sendResponse(!!tealium);
+        break;
       case 'init':
         let [match, account, profile] = tealium.src.match(/\/([^/]+)\/([^/]+)\/(?:prod|dev|qa)\/utag\.js/);
         sendResponse([account, profile]);
