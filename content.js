@@ -1,29 +1,23 @@
+let tealium;
 let observer = new MutationObserver(observerCallback);
+window.addEventListener('load', () => { if (observer) observer.disconnect() });
 observer.observe(document.documentElement, { subtree: true, childList: true });
 function observerCallback(mutationRecords) {
-  let info;
-  loop1:
   for (let record of mutationRecords) {
-    for (let node of record.addedNodes) {
-      let match = node.src && node.src.match(/utag\/(.+?)\/(.+?)\/(?:prod|qa|dev)\/utag\.js/);
-      if (match) {
-        info = {
-          account: match[1],
-          profile: match[2],
-          host: location.host
-        };
-        observer.disconnect();
-        break loop1;
-      }
+    tealium = Array.prototype.find.call(record.addedNodes, node => node.src && ~node.src.indexOf('utag.js'));
+    if (tealium) {
+      main();
+      observer.disconnect();
+      break;
     }
-  }
-  if (info) chrome.runtime.sendMessage({ command: 'init', ...info }, response => main());
+  };
 }
 
+
 function main() {
+  chrome.runtime.onMessage.addListener(uiListener);
   embedPageScript();
-  addBackgroundScriptCommunication();
-  addEmbeddedScriptCommunication();
+  embeddedListener();
 
   function embedPageScript() {
     let embed = document.createElement('script');
@@ -35,11 +29,13 @@ function main() {
   function pageScript() {
     window.eValCalls = localStorage.eValCalls && JSON.parse(localStorage.eValCalls) || [];
     let callIndex = eValCalls.reduce((max, call) => Math.max(max, call.id), 0);
-    window.postMessage({ eVal: 'load', calls: eValCalls });
 
     window.addEventListener('message', e => {
       if (!e.data.eVal) return;
       switch (e.data.eVal) {
+        case 'load':
+          eValCalls.forEach(call => window.postMessage({eVal: 'call', call: call}));
+          break;
         case 'deleteCall':
           eValCalls = eValCalls.filter(call => call.id != e.data.id);
           localStorage.eValCalls = JSON.stringify(eValCalls);
@@ -81,7 +77,7 @@ function main() {
       utag.track_old = utag.track;
       utag.track = function (a, b) {
         call.type = a.event || a;
-        call.tags.dataLayer =  b || a.data;
+        call.tags.dataLayer = b || a.data;
         utag.track_old.apply(this, arguments);
         processCall();
       }
@@ -111,26 +107,28 @@ function main() {
     }
   }
 
-  function addBackgroundScriptCommunication() {
-    chrome.runtime.onMessage.addListener(m => {
-      switch (m.command) {
-        case 'deleteCall':
-          window.postMessage({ eVal: 'deleteCall', id: m.id });
-          break;
-        case 'clearStored':
-          window.postMessage({ eVal: 'clearStored' });
-          break;
-      }
-    });
+  function uiListener(m, sender, sendResponse) {
+    switch (m.command) {
+      case 'init':
+        let [match, account, profile] = tealium.src.match(/\/([^/]+)\/([^/]+)\/(?:prod|dev|qa)\/utag\.js/);
+        sendResponse([account, profile]);
+        break;
+      case 'load':
+        window.postMessage({ eVal: 'load' });
+        break;
+      case 'deleteCall':
+        window.postMessage({ eVal: 'deleteCall', id: m.id });
+        break;
+      case 'clearStored':
+        window.postMessage({ eVal: 'clearStored' });
+        break;
+    }
   }
 
-  function addEmbeddedScriptCommunication() {
+  function embeddedListener() {
     window.addEventListener('message', e => {
       if (!e.data.eVal) return;
       switch (e.data.eVal) {
-        case 'load':
-          chrome.runtime.sendMessage({ command: 'load', calls: e.data.calls });
-          break;
         case 'call':
           chrome.runtime.sendMessage({ command: 'call', call: e.data.call });
           break;

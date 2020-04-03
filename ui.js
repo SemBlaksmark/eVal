@@ -1,58 +1,63 @@
-const info = Object.fromEntries(location.search.substr(1).split('&').map(entry => entry.split('=')));
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-//let calls = {};
+let pageTab;
+let port;
 let config;
 
+//let calls = {};
+
 (async () => {
-  document.title = `eVal ${info.host}`;
-
-  config = await getConfig(info.account, info.profile);
-  if (Object.keys(config).length === 0) alert('something\'s wrong');
-
+  pageTab = await new Promise(resolve => chrome.tabs.query({ active: true, currentWindow: true }, tabs => resolve(tabs[0])));
+  try {
+    config = await new Promise((resolve, reject) => chrome.tabs.sendMessage(pageTab.id, { command: 'init' }, response => {
+      if (response) getConfig(response).then(found => resolve(found)).catch(error => reject(error));
+      else reject('No response');
+    }));
+  } catch (e) {
+    chrome.tabs.getCurrent(tab => chrome.tabs.remove(tab.id));
+  }
   chrome.runtime.onMessage.addListener(messageListener);
-  if (document.readyState === 'complete') DOMReady();
-  else document.addEventListener('DOMContentLoaded', DOMReady);
+  chrome.tabs.sendMessage(pageTab.id, {command: 'load'});
+  document.title = `eVal ${pageTab.url.match(/\/\/(.+?)\//)?.[1]}`;
+
+  let calls = $('#calls');
+  calls.addEventListener('click', e => selectCall(e.target));
+  calls.addEventListener('keyup', e => { if (e.keyCode === 46) deleteCall(e.target) });
+  $('#tags').addEventListener('click', e => selectTag(e.target));
 })();
 
-async function getConfig(account, profile) {
-  let stored = await storageFetch('config');
-  let accountCfg = stored && JSON.parse(stored)[account];
-
-  if (accountCfg && accountCfg.default) {
-    Object.values(accountCfg).forEach(profile => {
-      Object.values(profile.keyGroups).forEach(group => {
-        group.keys = group.keys.map(key => {
-          let m = key.match(/^\/(.+)\/$/)?.[1];
-          return m ? new RegExp(m) : key;
-        });
-      });
-    });
-    if (accountCfg[profile]) return accountCfg[profile].override ? accountCfg[profile] : Object.assign(accountCfg.default, accountCfg[profile]);
-    return accountCfg.default;
-  }
-  return {};
-}
-async function storageFetch(key) {
-  return new Promise(resolve => {
-    chrome.storage.local.get(key, stored => resolve(stored[key]));
-  });
-}
-
-function messageListener(m) {
+function messageListener(m, sender) {
+  if(sender.tab?.id !== pageTab.id) return;
   switch (m.command) {
-    case 'addCall':
+    case 'call':
       addCall(m.call);
       break;
   }
 }
 
-function DOMReady() {
-  let calls = $('#calls');
-  calls.addEventListener('click', e => selectCall(e.target));
-  calls.addEventListener('keyup', e => { if (e.keyCode === 46) deleteCall(e.target) });
-  $('#tags').addEventListener('click', e => selectTag(e.target));
+function getConfig([account, profile]) {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get('config', stored => {
+      let fullCfg = stored['config'];
+
+      let accountCfg = fullCfg && JSON.parse(fullCfg)[account];
+
+      if (accountCfg && accountCfg.default) {
+        Object.values(accountCfg).forEach(profile => {
+          Object.values(profile.keyGroups).forEach(group => {
+            group.keys = group.keys.map(key => {
+              let m = key.match(/^\/(.+)\/$/)?.[1];
+              return m ? new RegExp(m) : key;
+            });
+          });
+        });
+        if (accountCfg[profile]) resolve(accountCfg[profile].override ? accountCfg[profile] : Object.assign(accountCfg.default, accountCfg[profile]));
+        else resolve(config = accountCfg.default);
+      }
+      reject('No config');
+    });
+  });
 }
 
 function addCall(call) {

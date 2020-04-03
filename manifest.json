@@ -25,7 +25,8 @@
       ],
       "js": ["content.js"]
     }
-  ],  "options_page": "options.html",
+  ],  
+  "options_page": "options.html",
   "permissions": [
     "storage",
     "tabs",
