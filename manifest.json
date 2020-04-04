@@ -28,8 +28,8 @@
   ],  
   "options_page": "options.html",
   "permissions": [
-    "storage",
     "tabs",
+    "storage",
     "http://*/*/",
     "https://*/*"
 ]

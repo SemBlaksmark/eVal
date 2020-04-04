@@ -3,8 +3,7 @@ const $$ = document.querySelectorAll.bind(document);
 
 let pageTab;
 let config;
-
-//let calls = {};
+let calls = {};
 
 (async () => {
   pageTab = await new Promise(resolve => chrome.tabs.query({ active: true, currentWindow: true }, tabs => resolve(tabs[0])));
@@ -23,6 +22,7 @@ let config;
   calls.addEventListener('click', e => selectCall(e.target));
   calls.addEventListener('keyup', e => { if (e.keyCode === 46) deleteCall(e.target) });
   $('#tags').addEventListener('click', e => selectTag(e.target));
+  $('#inspect').addEventListener('click', e => clipBoard(e.target));
 })();
 
 function messageListener(m, sender) {
@@ -59,7 +59,8 @@ function getConfig([account, profile]) {
 }
 
 function addCall(call) {
-  /*calls[id] =*/ processCall(call);
+  call = processCall(call);
+  calls[call.id] = call;
 
   createDetails(call);
   createTags(call);
@@ -175,11 +176,13 @@ function createDetails(call) {
       groupControl.dataset.groupName = groupName;
       head.append(groupControl);
       let content = makeEl('div', null, ['group', groupName]);
+      content.dataset.group = groupName;
       if (group.hidden) content.classList.add('hidden');
       content.append(makeEl('h2', null, null, groupName));
       Object.entries(group.keys).forEach(([key, value]) => {
         let status = getKeyStatus(value);
         let keyEl = makeEl('div', null, ['key', ...status]);
+        keyEl.dataset.key = key;
         keyEl.append(makeEl('div', null, null, key));
         if (!~status.indexOf('empty') && ~status.indexOf('array')) keyEl.append(makeEl('div', null, ['array-size'], value.length));
         content.append(keyEl);
@@ -277,6 +280,17 @@ function toggleGroup(el) {
   if (!el.classList.contains('groupControl')) return;
   el.classList.toggle('active');
   $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-tag-id="${el.dataset.tagId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
+}
+
+function clipBoard(el, key, group, tagId, callId) {
+  if (el.id === 'inspect') return;
+  if (!key) key = el.dataset?.key;
+  if (!group) group = el.dataset?.group;
+  if (!tagId) tagId = el.dataset?.tagId;
+  if (!callId) callId = el.dataset?.callId;
+  if (calls[callId]?.tags[tagId]?.[group]?.keys[key]) navigator.clipboard.writeText(JSON.stringify(calls[callId].tags[tagId][group].keys[key], null, 2));
+  else if (calls[callId]?.tags[tagId]?.[group]) navigator.clipboard.writeText(JSON.stringify(calls[callId].tags[tagId][group].keys, null, 2));
+  else clipBoard(el.parentElement, key, group, tagId, callId);
 }
 
 class NoKey {
