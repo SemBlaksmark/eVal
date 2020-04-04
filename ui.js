@@ -214,7 +214,7 @@ function createDetails(call) {
 function makeEl(type, id, classes, text) {
   var el = document.createElement(type);
   if (id || id === 0) el.id = id;
-  if (classes) classes.forEach(c => el.classList.add(c));
+  if (classes) el.classList.add(...classes);
   if (text !== null && text !== undefined) el.append(document.createTextNode(text));
   return el;
 }
@@ -225,8 +225,7 @@ function makeIcon(name) {
   let use = document.createElementNS(svgNS, 'use');
   use.setAttributeNS(linkNS, 'href', `icons.svg#${name}`);
   icon.append(use);
-  icon.classList.add('icon');
-  icon.classList.add(name);
+  icon.classList.add('icon', name);
   return icon;
 }
 function getKeyStatus(value, isNested) {
