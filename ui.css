@@ -3,6 +3,7 @@
     --primary-color: cornflowerblue;
     --secondary-color: seagreen;
     --highlight-color: midnightblue;
+    --elevate-color: #203030;
     --separator-color: blue;
 
     --status-number: white;
@@ -130,7 +131,7 @@ h2 {
 }
 .groupControl.active {
     order: initial;
-    background: #203030;
+    background: var(--elevate-color);
 }
 .group {
     display: grid;
@@ -150,6 +151,7 @@ h2 {
     margin: 1px 0;
 }
 .key {
+    display: flex;
     padding-right: 4px;
 }
 .key.nokey {
@@ -162,7 +164,17 @@ h2 {
     color: red;
 }
 .key.array:not(.empty) {
-    border-bottom: 1px dashed var(--primary-color);
+    border-bottom: 1px dotted var(--primary-color);
+}
+.key div:first-child {
+    margin-right: 1em;
+}
+.key .array-size {
+    margin-left: auto;
+    text-align: center;
+    background: var(--elevate-color);
+    padding: 0 .5em;
+    color: var(--secondary-color);
 }
 .value.array {
     display: flex;

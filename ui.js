@@ -179,13 +179,16 @@ function createDetails(call) {
       content.append(makeEl('h2', null, null, groupName));
       Object.entries(group.keys).forEach(([key, value]) => {
         let status = getKeyStatus(value);
-        content.append(makeEl('div', null, ['key', ...status], key));
+        let keyEl = makeEl('div', null, ['key', ...status]);
+        keyEl.append(makeEl('div', null, null, key));
+        if (!~status.indexOf('empty') && ~status.indexOf('array')) keyEl.append(makeEl('div', null, ['array-size'], value.length));
+        content.append(keyEl);
         let valueEl = makeEl('div', null, ['value', ...status]);
         if (!~status.indexOf('nokey') && !~status.indexOf('missing')) {
           if (~status.indexOf('empty') || ~status.indexOf('object')) {
             valueEl.append(document.createTextNode(JSON.stringify(value)));
           } else if (~status.indexOf('array')) {
-            valueEl.append(makeEl('div', null, ['array-size', 'value', ...status], `[${value.length}]`));
+            //valueEl.append(makeEl('div', null, ['array-size', 'value', ...status], value.length));
             value.forEach(entry => {
               let entryStatus = getKeyStatus(entry);
               if (~entryStatus.indexOf('empty') || ~entryStatus.indexOf('object')) {
