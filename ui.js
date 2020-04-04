@@ -219,11 +219,14 @@ function makeEl(type, id, classes, text) {
   return el;
 }
 function makeIcon(name) {
-  const NS = 'http://www.w3.org/2000/svg';
-  let icon = document.createElementNS(NS, 'svg');
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const linkNS = 'http://www.w3.org/1999/xlink';
+  let icon = document.createElementNS(svgNS, 'svg');
+  let use = document.createElementNS(svgNS, 'use');
+  use.setAttributeNS(linkNS, 'href', `icons.svg#${name}`);
+  icon.append(use);
   icon.classList.add('icon');
   icon.classList.add(name);
-  icon.innerHTML = `<use href="icons.svg#${name}"></use>`
   return icon;
 }
 function getKeyStatus(value, isNested) {
