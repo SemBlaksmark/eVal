@@ -288,8 +288,9 @@ function clipBoard(el, key, group, tagId, callId) {
   if (!group) group = el.dataset?.group;
   if (!tagId) tagId = el.dataset?.tagId;
   if (!callId) callId = el.dataset?.callId;
-  if (calls[callId]?.tags[tagId]?.[group]?.keys[key]) navigator.clipboard.writeText(`${key}: ${calls[callId].tags[tagId][group].keys[key]}`);
-  else if (calls[callId]?.tags[tagId]?.[group]) navigator.clipboard.writeText(JSON.stringify(calls[callId].tags[tagId][group].keys, null, 2));
+  
+  let keys = calls[callId]?.tags[tagId]?.[group]?.keys;
+  if (keys) navigator.clipboard.writeText(key ? `${key}: ${keys[key]}` : JSON.stringify(keys, null, 2));
   else clipBoard(el.parentElement, key, group, tagId, callId);
 }
 
