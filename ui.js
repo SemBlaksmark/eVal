@@ -282,15 +282,15 @@ function toggleGroup(el) {
   $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-tag-id="${el.dataset.tagId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
 }
 
-function clipBoard(el, key, group, tagId, callId) {
+function clipBoard(el, key = null, group = null, tagId = null, callId = null) {
   if (el.id === 'inspect') return;
-  if (!key) key = el.dataset?.key;
-  if (!group) group = el.dataset?.group;
-  if (!tagId) tagId = el.dataset?.tagId;
-  if (!callId) callId = el.dataset?.callId;
+  if (key === null) key = el.dataset?.key;
+  if (group === null) group = el.dataset?.group;
+  if (tagId === null) tagId = el.dataset?.tagId;
+  if (callId === null) callId = el.dataset?.callId;
   
   let keys = calls[callId]?.tags[tagId]?.[group]?.keys;
-  if (keys) navigator.clipboard.writeText(key ? `${key}: ${keys[key]}` : JSON.stringify(keys, null, 2));
+  if (keys) navigator.clipboard.writeText(key !== null ? `${key}: ${keys[key]}` : JSON.stringify(keys, null, 2));
   else clipBoard(el.parentElement, key, group, tagId, callId);
 }
 
