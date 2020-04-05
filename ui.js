@@ -13,7 +13,7 @@ let calls = {};
       if (response) getConfig(response).then(found => resolve(found)).catch(error => reject(error));
       else reject('No response');
     }));
-  } catch (e) {}
+  } catch (e) { }
   chrome.runtime.onMessage.addListener(messageListener);
   chrome.tabs.sendMessage(pageTab.id, {command: 'load'});
   document.title = `eVal ${pageTab.url.match(/\/\/(.+?)\//)?.[1]}`;
@@ -37,12 +37,14 @@ function messageListener(m, sender) {
 function getConfig([account, profile]) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get('config', stored => {
-      let fullCfg = stored['config'];
+      let fullCfg = JSON.parse(stored['config']);
+      console.log(fullCfg);
 
-      let accountCfg = fullCfg && JSON.parse(fullCfg)[account];
-
+      let accountCfg = fullCfg[account] || fullCfg.default;
+      console.log(accountCfg);
       if (accountCfg && accountCfg.default) {
         Object.values(accountCfg).forEach(profile => {
+          console.log('p: ' + JSON.stringify(profile, null, 2));
           Object.values(profile.keyGroups).forEach(group => {
             group.keys = group.keys.map(key => {
               let m = key.match(/^\/(.+)\/$/)?.[1];

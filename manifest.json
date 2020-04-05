@@ -8,9 +8,7 @@
 
   "author": "Sem Blaksmark",
   "background": {
-    "scripts": [
-      "background.js"
-    ],
+    "page": "background.html",
     "persistent": false
   },
   "browser_action": {

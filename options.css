@@ -1,8 +1,24 @@
-html, body {
-    height: 100%;
+:root {
+    --bg-color: #101818;
+    --primary-color: cornflowerblue;
+    --secondary-color: seagreen;
+    --highlight-color: midnightblue;
+    --elevate-color: #203030;
+    --separator-color: blue;
+}
+html {
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
 }
 body {
-    margin: 0;
+    background: var(--bg-color);
+    color: var(--primary-color);
+    margin: 0px;
+    display: grid;
+    grid-template-columns: min-content min-content auto;
+    white-space: nowrap;
 }
 h1 {
     margin: 0;
