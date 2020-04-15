@@ -1,3 +1,4 @@
+import { makeEl, makeIcon } from './markupBuilders.js';
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
@@ -7,7 +8,7 @@ let calls = {};
 
 (async () => {
   pageTab = await new Promise(resolve => chrome.tabs.query({ active: true, currentWindow: true }, tabs => resolve(tabs[0])));
-  chrome.tabs.getCurrent(tab => chrome.tabs.update(tab.id, {active: true}));
+  chrome.tabs.getCurrent(tab => chrome.tabs.update(tab.id, { active: true }));
   try {
     config = await new Promise((resolve, reject) => chrome.tabs.sendMessage(pageTab.id, { command: 'init' }, response => {
       if (response) getConfig(response).then(found => resolve(found)).catch(error => reject(error));
@@ -15,7 +16,7 @@ let calls = {};
     }));
   } catch (e) { }
   chrome.runtime.onMessage.addListener(messageListener);
-  chrome.tabs.sendMessage(pageTab.id, {command: 'load'});
+  chrome.tabs.sendMessage(pageTab.id, { command: 'load' });
   document.title = `eVal ${pageTab.url.match(/\/\/(.+?)\//)?.[1]}`;
 
   let calls = $('#calls');
@@ -26,7 +27,7 @@ let calls = {};
 })();
 
 function messageListener(m, sender) {
-  if(sender.tab?.id !== pageTab.id) return;
+  if (sender.tab?.id !== pageTab.id) return;
   switch (m.command) {
     case 'call':
       addCall(m.call);
@@ -216,23 +217,6 @@ function createDetails(call) {
   });
   $('#inspect').append(fragment);
 }
-function makeEl(type, id, classes, text) {
-  var el = document.createElement(type);
-  if (id || id === 0) el.id = id;
-  if (classes) el.classList.add(...classes);
-  if (text !== null && text !== undefined) el.append(document.createTextNode(text));
-  return el;
-}
-function makeIcon(name) {
-  const svgNS = 'http://www.w3.org/2000/svg';
-  const linkNS = 'http://www.w3.org/1999/xlink';
-  let icon = document.createElementNS(svgNS, 'svg');
-  let use = document.createElementNS(svgNS, 'use');
-  use.setAttributeNS(linkNS, 'href', `icons.svg#${name}`);
-  icon.append(use);
-  icon.classList.add('icon', name);
-  return icon;
-}
 function getKeyStatus(value, isNested) {
   let status = [];
   if (value instanceof NoKey) {
@@ -284,15 +268,15 @@ function toggleGroup(el) {
   $(`#inspect .detail[data-call-id="${el.dataset.callId}"][data-tag-id="${el.dataset.tagId}"] .group.${el.dataset.groupName}`)?.classList.toggle('hidden');
 }
 
-function clipBoard(el, key = null, group = null, tagId = null, callId = null) {
+function clipBoard(el, key, group, tagId, callId) {
   if (el.id === 'inspect') return;
-  if (key === null) key = el.dataset?.key;
-  if (group === null) group = el.dataset?.group;
-  if (tagId === null) tagId = el.dataset?.tagId;
-  if (callId === null) callId = el.dataset?.callId;
-  
+  if (!key && key != 0) key = el.dataset?.key;
+  if (!group) group = el.dataset?.group;
+  if (!tagId && tagId != 0) tagId = el.dataset?.tagId;
+  if (!callId && callId != 0) callId = el.dataset?.callId;
+
   let keys = calls[callId]?.tags[tagId]?.[group]?.keys;
-  if (keys) navigator.clipboard.writeText(key !== null ? `${key}: ${keys[key]}` : JSON.stringify(keys, null, 2));
+  if (keys) navigator.clipboard.writeText(key || key == 0 ? `${key}: ${keys[key]}` : JSON.stringify(keys, null, 2));
   else clipBoard(el.parentElement, key, group, tagId, callId);
 }
 
