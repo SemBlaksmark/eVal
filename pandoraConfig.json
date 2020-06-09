@@ -106,12 +106,23 @@
             "product_collection_store"
           ]
         },
+        "search": {
+          "hidden": false,
+          "keys": [
+            "search_term",
+            "search_results",
+            "search_method"
+          ]
+        },
         "order": {
           "hidden": false,
           "keys": [
             "order_id",
             "order_payment_type",
             "order_shipping_method",
+            "order_shipping_type",
+            "order_shipping_gender",
+            "order_shipping_country",
             "order_shipping_cost",
             "order_campaign",
             "order_coupon",
@@ -119,6 +130,8 @@
             "order_type",
             "order_tax_value",
             "order_total_discount",
+            "order_total",
+            "order_subtotal",
             "product_final_price_ex_tax",
             "product_final_price_inc_tax"
           ]
@@ -139,6 +152,7 @@
             "cart_product_name",
             "cart_product_category",
             "cart_product_brand",
+            "cart_product_price",
             "cart_product_unit_price",
             "cart_product_quantity",
             "cart_product_color",

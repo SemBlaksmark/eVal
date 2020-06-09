@@ -21,9 +21,43 @@ body {
     grid-gap: 2em;
     white-space: nowrap;
 }
+button {
+    font: inherit;
+    color: inherit;
+    border: none;
+    background: none;
+    display: block;
+}
+button:focus {
+    outline: none;
+}
+input {
+    font: inherit;
+    color: var(--primary-color);
+    caret-color: var(--secondary-color);
+    background: var(--elevate-color);
+    border: none;
+    padding: 1px 6px;
+    line-height: 1.15;
+}
+input:focus {
+    outline: none;
+}
 h1 {
     margin: 0;
 }
 h2 {
     margin: 0;
+}
+#add-account.hidden, #add-profile.hidden {
+    display: none;
+}
+#add-account-input.hidden, #add-profile-input.hidden {
+    display: none;
+}
+#add-account-input.error, #add-profile-input.error {
+    color: red;
+}
+#accounts button.selected, #profiles button.selected {
+    background: var(--highlight-color);
 }
