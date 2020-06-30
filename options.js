@@ -1,15 +1,9 @@
-import { makeEl, makeIcon } from './markupBuilders.js';
-
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
 const accountsEl = $('#accounts');
 const profilesEl = $('#profiles');
-const configsEl = $('#configs');
-const addAccountBtn = $('#add-account');
-const addAccountInp = $('#add-account-input');
-const addProfileBtn = $('#add-profile');
-const addProfileInp = $('#add-profile-input');
+const configurationEl = $('#configuration');
 
 let config;
 (async function () {
@@ -18,16 +12,17 @@ let config;
       resolve(JSON.parse(stored['config']));
     });
   });
+  const accountButton = accountsEl.querySelector('button.add');
+  const accountInput = accountsEl.querySelector('input.add');
   accountsEl.addEventListener('click', selectAccount);
-  addAccountBtn.addEventListener('click', showInput);
-  addAccountInp.addEventListener('blur', blurInput);
-  addAccountInp.addEventListener('keyup', addAccount);
+  accountButton.addEventListener('click', showInput);
+  accountInput.addEventListener('blur', blurInput);
+  accountInput.addEventListener('keyup', addAccount);
   profilesEl.addEventListener('click', selectProfile);
-  addProfileBtn.addEventListener('click', showInput);
-  addProfileInp.addEventListener('blur', blurInput);
-  Object.keys(config).forEach(key => {
-    accountsEl.insertBefore(makeEl('button', null, ['account'], key), addAccountBtn);
-  });
+  profilesEl.querySelector('input.add').addEventListener('blur', blurInput);
+  accountButton.insertAdjacentHTML('beforeBegin', Object.keys(config).filter(key => key !== 'default').map(key => /*html*/`
+    <button class="account">${key}</button>
+  `).join(''));
 })()
 
 function showInput(e) {
@@ -50,34 +45,45 @@ function selectAccount(e) {
   accountsEl.querySelector('.selected')?.classList.toggle('selected');
   e.target.classList.toggle('selected');
   profilesEl.querySelectorAll('.profile').forEach(el => el.remove());
-  Object.keys(config[e.target.textContent]).forEach(key => {
-    profilesEl.insertBefore(makeEl('button', null, ['profile'], key), addProfileBtn);
-  });
+  profilesEl.querySelector('button.add').insertAdjacentHTML('beforeBegin', Object.keys(config[e.target.textContent]).map(key => /*html*/`
+    <button class="profile">${key}</button>
+  `).join(''));
   profilesEl.querySelector('.profile').click();
 }
 
 function addAccount(e) {
-  if (e.key === 'Enter' && addAccountInp.value) {
+  const accountButton = accountsEl.querySelector('button.add');
+  const accountInput = accountsEl.querySelector('input.add');
+  if (e.key === 'Enter' && accountInput.value) {
     try {
-      createAccount(addAccountInp.value);
-      accountsEl.insertBefore(makeEl('button', null, ['account'], addAccountInp.value), addAccountBtn);
-      addAccountInp.classList.add('hidden');
-      addAccountInp.classList.remove('error');
-      addAccountBtn.classList.remove('hidden');
-      addAccountInp.value = '';
+      createAccount(accountInput.value);
+      accountButton.insertAdjacentHTML('beforeBegin', /*html*/`<button class="account">${accountInput.value}</button>`);
+      accountInput.classList.add('hidden');
+      accountInput.classList.remove('error');
+      accountButton.classList.remove('hidden');
+      accountInput.value = '';
     } catch (err) {
-      addAccountInp.classList.add('error');
+      accountInput.classList.add('error');
     }
   }
 }
 
 function selectProfile(e) {
   if (!e.target.classList.contains('profile')) return;
-  profilesEl.querySelector('.selected')?.classList.toggle('selected');
-  e.target.classList.toggle('selected');
+  const profile = config[accountsEl.querySelector('.selected').textContent][e.target.textContent];
+  profilesEl.querySelector('.selected')?.classList.remove('selected');
+  e.target.classList.add('selected');
+  configurationEl.innerHTML = /*html*/`
+    <h2>Chosen: ${e.target.textContent}</h2>
+    <div>Override: ${profile.override}</div>
+    <div>Page name variable: ${profile.pageNameKey}<div>
+    <div>Event group or variable name: ${profile.events.key}<div>
+    <div>Events is a group: ${profile.events.isGroup}<div>
+    ${Object.entries(profile.keyGroups).map(([name, group]) => '<div>' + name + '<div>').join('')}
+  `;
 }
 
 function createAccount(name) {
   config[name] = JSON.parse(JSON.stringify(config.default));
-  chrome.storage.local.set({config: JSON.stringify(config)});
+  chrome.storage.local.set({ config: JSON.stringify(config) });
 }

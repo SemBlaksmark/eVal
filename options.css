@@ -49,13 +49,10 @@ h1 {
 h2 {
     margin: 0;
 }
-#add-account.hidden, #add-profile.hidden {
+.add.hidden {
     display: none;
 }
-#add-account-input.hidden, #add-profile-input.hidden {
-    display: none;
-}
-#add-account-input.error, #add-profile-input.error {
+.add.error {
     color: red;
 }
 #accounts button.selected, #profiles button.selected {
