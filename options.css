@@ -1,37 +1,89 @@
 :root {
-    --bg-color: #101818;
-    --primary-color: cornflowerblue;
-    --secondary-color: seagreen;
-    --highlight-color: midnightblue;
-    --elevate-color: #203030;
-    --separator-color: blue;
+	--bg-color: #101818;
+	--primary-color: cornflowerblue;
+	--secondary-color: seagreen;
+	--highlight-color: midnightblue;
+	--elevate-color: #203030;
+	--separator-color: blue;
 }
 html {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 *, *:before, *:after {
-    box-sizing: inherit;
+	box-sizing: inherit;
 }
 body {
-    background: var(--bg-color);
-    color: var(--primary-color);
-    margin: 0px;
-    display: grid;
-    grid-template-columns: min-content min-content auto;
-    grid-gap: 2em;
-    white-space: nowrap;
+	background: var(--bg-color);
+	color: var(--primary-color);
+	margin: 0px;
+	display: grid;
+	grid-template-areas: "controls"
+											 "configuration";
+}
+ul {
+	list-style: none;
+	margin: 0;
+	padding: .5em 1em;
+}
+#controls {
+	grid-area: controls;
+	display: flex;
+}
+#controls div + div {
+	margin-left: 2em;
+}
+#controls > * {
+	display: flex;
+}
+#configuration {
+	grid-area: configuration;
 }
 button {
-    font: inherit;
-    color: inherit;
-    border: none;
-    background: none;
-    display: block;
+	font: inherit;
+	color: inherit;
+	border: none;
+	background: none;
+	display: block;
+	padding: 0;
 }
 button:focus {
-    outline: none;
+	outline: none;
 }
-input {
+button.add {
+	margin: 1em;
+	width: 2em;
+	height: 2em;
+	border: 1px solid var(--primary-color);
+}
+button.add svg {
+	height: 1em;
+	width: 1em;
+	fill: var(--primary-color);
+}
+button.add:hover {
+	border: none;
+}
+button.add:hover svg {
+	fill: var(--secondary-color);
+}
+button.dropdown {
+	position: relative;
+	padding: 1em;
+}
+button.dropdown ul {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background: var(--bg-color);
+	transform: scaleY(0);
+	transform-origin: top;
+	transition: transform .1s ease-out;
+}
+button.dropdown.open ul {
+	transform: scaleY(1);
+}
+/*input {
+    width: 100%;
     font: inherit;
     color: var(--primary-color);
     caret-color: var(--secondary-color);
@@ -57,4 +109,4 @@ h2 {
 }
 #accounts button.selected, #profiles button.selected {
     background: var(--highlight-color);
-}
+}*/

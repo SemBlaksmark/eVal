@@ -2,27 +2,40 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Options</title>
-  <link rel="stylesheet" type="text/css" href="options.css">
-  <script src="options.js" type="module" defer></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Options</title>
+	<link rel="stylesheet" type="text/css" href="options.css">
+	<script src="options.js" type="module" defer></script>
 </head>
 
 <body>
-  <div id="accounts">
-    <h2>Accounts</h2>
-    <button class="add">Add</button>
-    <input class="add hidden">
-  </div>
-  <div id="profiles">
-    <h2>Profiles</h2>
-    <button class="add">Add</button>
-    <input class="add hidden">
-  </div>
-  <div id="configuration">
-    <h1>CONFIGURATION</h1>
-  </div>
+	<div id="controls">
+		<div id="for-accounts">
+			<button class="dropdown">
+				<div class="selected">Accounts</div>
+				<ul></ul></button>
+			<button class="add">
+				<svg>
+					<use href="icons.svg#plus"></use>
+				</svg>
+			</button>
+			</div>
+		<div id="for-profiles">
+			<button class="dropdown">
+				<div class="selected">Profiles</div>
+				<ul></ul>
+			</button>
+			<button class="add">
+				<svg>
+					<use href="icons.svg#plus"></use>
+				</svg>
+			</button>
+			</div>
+	</div>
+	<div id="configuration">
+		<h1>CONFIGURATION</h1>
+	</div>
 </body>
 
 </html>
